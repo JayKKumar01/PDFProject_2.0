@@ -46,6 +46,9 @@ public class PDFProject {
 //            //System.out.println(wordInfo.getWord()+": "+wordInfo.getFont()+" - "+wordInfo.getFontSize() +" - "+wordInfo.getFontStyle());
 //        }
 
+        int count = 0;
+        copyList(list1,count);
+        copyList(list2,count);
         list = StringDiff.List(list1,list2);
 
 
@@ -71,6 +74,14 @@ public class PDFProject {
         //but using a different class using pdfbox library but take the list page by page only to optimize for
         //large pdf files
 
+    }
+
+    private void copyList(List<WordInfo> list, int count) {
+        List<WordInfo> listAdd = new ArrayList<>();
+        for (int i=0; i<count; i++){
+            listAdd.addAll(list);
+        }
+        list.addAll(listAdd);
     }
 
     private boolean isValid() {

@@ -22,10 +22,11 @@ public class StringDiff {
 
         int m,n;
 
-        int batchSize = 328;
+        int batchSize = 20; //adjust this to get faster calculation
+
+        //long currentTime = System.currentTimeMillis();
 
         while (a < words1.size() || b < words2.size()){
-            // add only words after last equal (must needed)
             m = Math.min(batchSize,words1.size()-a);
             n = Math.min(batchSize,words2.size()-b);
 
@@ -62,6 +63,7 @@ public class StringDiff {
         list.addAll(listDel);
         list.addAll(listAdd);
 
+        //System.out.println(System.currentTimeMillis()-currentTime+" millis");
 
         return list;
     }
