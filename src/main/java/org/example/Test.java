@@ -10,7 +10,7 @@ public class Test {
         list.add(2);
         list.add(3);
 
-        List<Integer> nList = list.subList(0,2);
+        List<Integer> nList = list.subList(3,3);
         System.out.println(nList.size());
     }
 }

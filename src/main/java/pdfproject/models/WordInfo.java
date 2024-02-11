@@ -14,6 +14,16 @@ public class WordInfo {
     private List<TextPosition> positions;
     private int pageNumber;
     private PDColor color;
+    private boolean shouldCheck = true;
+
+    public boolean isShouldCheck() {
+        return shouldCheck;
+    }
+
+    public void setShouldCheck(boolean shouldCheck) {
+        this.shouldCheck = shouldCheck;
+    }
+
     public WordInfo(String word){
         this.word = word;
     }

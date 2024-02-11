@@ -57,13 +57,13 @@ public class PDFProject {
         for (WordInfo wordInfo: list){
             Info.Operation type = wordInfo.getType();
             if (type == Info.Operation.EQUAL){
-                System.out.println(++i);
+//                System.out.println(++i);
                 continue;
             }
             System.out.println(wordInfo.getWord()+": "+type);
             //System.out.println(wordInfo.getWord()+": "+wordInfo.getFont()+" - "+wordInfo.getFontSize() +" - "+wordInfo.getFontStyle());
         }
-        System.out.println(list1.size()+": "+list.size());
+        System.out.println(list1.size()+" "+list2.size()+": "+list.size());
 
         // store list of wordInfo from pdf1
         // store list of wordInfo from pdf2

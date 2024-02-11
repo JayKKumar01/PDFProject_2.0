@@ -22,16 +22,31 @@ public class StringDiff {
 
         int m,n;
 
-        int batchSize = 100;
+        int batchSize = 328;
 
-        while (a < words1.size() && b < words2.size()){
+        while (a < words1.size() || b < words2.size()){
+            // add only words after last equal (must needed)
             m = Math.min(batchSize,words1.size()-a);
             n = Math.min(batchSize,words2.size()-b);
 
-            List<WordInfo> list1 = new ArrayList<>(listDel);
+            List<WordInfo> list1 = new ArrayList<>();
+            for (WordInfo wordInfo: listDel){
+                if (wordInfo.isShouldCheck()){
+                    list1.add(wordInfo);
+                }else {
+                    list.add(wordInfo);
+                }
+            }
             list1.addAll(words1.subList(a,a+m));
 
-            List<WordInfo> list2 = new ArrayList<>(listAdd);
+            List<WordInfo> list2 = new ArrayList<>();
+            for (WordInfo wordInfo: listAdd){
+                if (wordInfo.isShouldCheck()){
+                    list2.add(wordInfo);
+                }else {
+                    list.add(wordInfo);
+                }
+            }
             list2.addAll(words2.subList(b,b+n));
             CustomList customList = getList(list1,list2);
 
@@ -67,6 +82,7 @@ public class StringDiff {
         List<WordInfo> resultEql = new ArrayList<>();
         List<WordInfo> resultDel = new ArrayList<>();
         List<WordInfo> resultAdd = new ArrayList<>();
+        boolean gotEqual = false;
 
         int i = m;
         int j = n;
@@ -74,13 +90,21 @@ public class StringDiff {
             String w1 = words1.get(m - i).getWord();
             String w2 = words2.get(n - j).getWord();
             if (w1.equals(w2)) {
+                if (!gotEqual) {
+                    gotEqual = true;
+                    updateDelAddList(resultDel);
+                    updateDelAddList(resultAdd);
+//                    resultDel.add(new WordInfo(Operation.DELETED, "DoNotAddFromHere"));
+                }
                 resultEql.add(new WordInfo(Operation.EQUAL, w1));
                 i--;
                 j--;
             } else if (LCSuffix[i - 1][j] > LCSuffix[i][j - 1]) {
+                gotEqual = false;
                 resultDel.add(new WordInfo(Operation.DELETED, w1));
                 i--;
             } else {
+                gotEqual = false;
                 resultAdd.add(new WordInfo(Operation.ADDED, w2));
                 j--;
             }
@@ -97,6 +121,12 @@ public class StringDiff {
         }
 
         return new CustomList(resultEql,resultDel,resultAdd);
+    }
+
+    private static void updateDelAddList(List<WordInfo> result) {
+        for (WordInfo wordInfo: result){
+            wordInfo.setShouldCheck(false);
+        }
     }
 
     public static class CustomList {
