@@ -6,15 +6,34 @@ import org.apache.pdfbox.pdmodel.graphics.color.PDColor;
 import org.apache.pdfbox.text.TextPosition;
 import pdfproject.enums.Info.Operation;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class WordInfo {
-    private Operation type;  // Equal, Deleted, or Added
+public class WordInfo {  // Equal, Deleted, or Added
+    private final List<Operation> typeList = new ArrayList<>();
     private String word;
+    private String info;
+
+    public String getInfo() {
+        return info;
+    }
+
+    public void setInfo(String info) {
+        this.info = info;
+    }
+
     private List<TextPosition> positions;
     private int pageNumber;
     private PDColor color;
     private boolean shouldCheck = true;
+
+    public List<Operation> getTypeList() {
+        return typeList;
+    }
+
+    public void addType(Operation type) {
+        typeList.add(type);
+    }
 
     public boolean isShouldCheck() {
         return shouldCheck;
@@ -29,7 +48,7 @@ public class WordInfo {
     }
 
     public WordInfo(Operation type, String word) {
-        this.type = type;
+        typeList.add(type);
         this.word = word;
     }
 
@@ -95,16 +114,12 @@ public class WordInfo {
         return pageNumber;
     }
 
-    public Operation getType() {
-        return type;
-    }
-
     public String getWord() {
         return word;
     }
 
     @Override
     public String toString() {
-        return type.name() + ": " + word;
+        return typeList.get(0).name() + ": " + word;
     }
 }

@@ -4,11 +4,13 @@ import pdfproject.core.StringDiff;
 import pdfproject.enums.Info;
 import pdfproject.enums.Info.Constants;
 import pdfproject.models.WordInfo;
+import pdfproject.utils.Base;
 import pdfproject.utils.PDFUtil;
 import pdfproject.utils.WordToPdfConverter;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class PDFProject {
@@ -28,44 +30,29 @@ public class PDFProject {
         }
         List<WordInfo> list1 = PDFUtil.WordList(pdf1,new ArrayList<>());
         List<WordInfo> list2 = PDFUtil.WordList(pdf2,new ArrayList<>());
-        List<WordInfo> list = new ArrayList<>();
-//        StringDiff.CustomList l = StringDiff.getList(list1, list2);
-//        List<WordInfo> lDel = l.getResultDel();
-//        List<WordInfo> lAdd = l.getResultAdd();
-//        List<WordInfo> lEql = l.getResultEql();
-//        list.addAll(lEql);
-//        list.addAll(lDel);
-//        list.addAll(lAdd);
-//        System.out.println(lEql.size() + " "+lDel.size()+" "+lAdd.size());
+        List<WordInfo> list = StringDiff.List(list1,list2);
+
+
+        Iterator<WordInfo> itr = list.iterator();
+        while (itr.hasNext()){
+            WordInfo wordInfo = itr.next();
+            List<Info.Operation> typeList = wordInfo.getTypeList();
+            if (typeList.get(0) == Info.Operation.EQUAL){
+                itr.remove();
+                continue;
+            }
+            System.out.println(wordInfo.getWord()+": "+wordInfo.getInfo());
+        }
 //        for (WordInfo wordInfo: list){
 //            Info.Operation type = wordInfo.getType();
 //            if (type == Info.Operation.EQUAL){
+//                list.remove(wordInfo);
+////                System.out.println(++i);
 //                continue;
 //            }
 //            System.out.println(wordInfo.getWord()+": "+type);
 //            //System.out.println(wordInfo.getWord()+": "+wordInfo.getFont()+" - "+wordInfo.getFontSize() +" - "+wordInfo.getFontStyle());
 //        }
-
-        int count = 0;
-        copyList(list1,count);
-        copyList(list2,count);
-        list = StringDiff.List(list1,list2);
-
-
-
-
-
-
-        int i=0;
-        for (WordInfo wordInfo: list){
-            Info.Operation type = wordInfo.getType();
-            if (type == Info.Operation.EQUAL){
-//                System.out.println(++i);
-                continue;
-            }
-            System.out.println(wordInfo.getWord()+": "+type);
-            //System.out.println(wordInfo.getWord()+": "+wordInfo.getFont()+" - "+wordInfo.getFontSize() +" - "+wordInfo.getFontStyle());
-        }
         System.out.println(list1.size()+" "+list2.size()+": "+list.size());
 
         // store list of wordInfo from pdf1
@@ -74,14 +61,6 @@ public class PDFProject {
         //but using a different class using pdfbox library but take the list page by page only to optimize for
         //large pdf files
 
-    }
-
-    private void copyList(List<WordInfo> list, int count) {
-        List<WordInfo> listAdd = new ArrayList<>();
-        for (int i=0; i<count; i++){
-            listAdd.addAll(list);
-        }
-        list.addAll(listAdd);
     }
 
     private boolean isValid() {

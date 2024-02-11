@@ -74,12 +74,12 @@ public class PDFWordExtractor extends PDFTextStripper {
         for (String word : words) {
             if (!word.isEmpty()) {
                 List<TextPosition> positions = new ArrayList<>();
-                if (textPositions.size() > i) {
-                    positions.add(textPositions.get(i));
-                }
-//                for (int j = i; j < i + word.length(); j++) {
-//                    positions.add(textPositions.get(j));
+//                if (textPositions.size() > i) {
+//                    positions.add(textPositions.get(i));
 //                }
+                for (int j = i; j < i + word.length(); j++) {
+                    positions.add(textPositions.get(j));
+                }
                 WordInfo wordInfo = new WordInfo(word, positions);
                 wordInfo.setPageNumber(this.getCurrentPageNo());
                 PDColor color = getGraphicsState().getNonStrokingColor();

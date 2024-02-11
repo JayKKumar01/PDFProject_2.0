@@ -8,6 +8,6 @@ public class Info {
         public static final String DOC = ".doc";
     }
     public enum Operation{
-        DELETED,ADDED,EQUAL
+        DELETED,ADDED,EQUAL,FONT,STYLE,SIZE
     }
 }

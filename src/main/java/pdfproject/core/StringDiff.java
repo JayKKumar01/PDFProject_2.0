@@ -1,11 +1,13 @@
 package pdfproject.core;
-
 import pdfproject.enums.Info.Operation;
 import pdfproject.models.WordInfo;
+import pdfproject.utils.Base;
 
 import java.awt.datatransfer.FlavorListener;
 import java.util.ArrayList;
 import java.util.List;
+
+import static pdfproject.Config.WORD_BATCH_SIZE_FOR_COMPARISON;
 
 public class StringDiff {
     public static List<WordInfo> List(List<WordInfo> words1, List<WordInfo> words2){
@@ -22,7 +24,7 @@ public class StringDiff {
 
         int m,n;
 
-        int batchSize = 20; //adjust this to get faster calculation
+        int batchSize = WORD_BATCH_SIZE_FOR_COMPARISON;
 
         //long currentTime = System.currentTimeMillis();
 
@@ -89,36 +91,57 @@ public class StringDiff {
         int i = m;
         int j = n;
         while (i > 0 && j > 0) {
-            String w1 = words1.get(m - i).getWord();
-            String w2 = words2.get(n - j).getWord();
+            WordInfo wordInfo1 = words1.get(m - i);
+            WordInfo wordInfo2 = words2.get(n - j);
+            String w1 = wordInfo1.getWord();
+            String w2 = wordInfo2.getWord();
             if (w1.equals(w2)) {
                 if (!gotEqual) {
                     gotEqual = true;
                     updateDelAddList(resultDel);
                     updateDelAddList(resultAdd);
-//                    resultDel.add(new WordInfo(Operation.DELETED, "DoNotAddFromHere"));
                 }
-                resultEql.add(new WordInfo(Operation.EQUAL, w1));
+                if (Base.isFontInfoSame(wordInfo1,wordInfo2)) {
+                    wordInfo1.addType(Operation.EQUAL);
+                    resultEql.add(wordInfo1);
+                }else{
+                    Base.updateFontInfo(wordInfo1,wordInfo2);
+                    resultEql.add(wordInfo2);
+                }
                 i--;
                 j--;
             } else if (LCSuffix[i - 1][j] > LCSuffix[i][j - 1]) {
                 gotEqual = false;
-                resultDel.add(new WordInfo(Operation.DELETED, w1));
+                wordInfo1.addType(Operation.DELETED);
+                String info = "DELETED [Font: "+wordInfo1.getFont()+", Size: "+wordInfo1.getFontSize()+", Style: "+wordInfo1.getFontStyle()+"]";
+                wordInfo1.setInfo(info);
+                resultDel.add(wordInfo1);
                 i--;
             } else {
                 gotEqual = false;
-                resultAdd.add(new WordInfo(Operation.ADDED, w2));
+                wordInfo2.addType(Operation.ADDED);
+                String info = "ADDED [Font: "+wordInfo2.getFont()+", Size: "+wordInfo2.getFontSize()+", Style: "+wordInfo2.getFontStyle()+"]";
+                wordInfo2.setInfo(info);
+                resultAdd.add(wordInfo2);
                 j--;
             }
         }
 
         while (i > 0) {
-            resultDel.add(new WordInfo(Operation.DELETED, words1.get(m - i).getWord()));
+            WordInfo wordInfo1 = words1.get(m-i);
+            wordInfo1.addType(Operation.DELETED);
+            String info = "DELETED [Font: "+wordInfo1.getFont()+", Size: "+wordInfo1.getFontSize()+", Style: "+wordInfo1.getFontStyle()+"]";
+            wordInfo1.setInfo(info);
+            resultDel.add(wordInfo1);
             i--;
         }
 
         while (j > 0) {
-            resultAdd.add(new WordInfo(Operation.ADDED, words2.get(n - j).getWord()));
+            WordInfo wordInfo2 = words2.get(n-j);
+            wordInfo2.addType(Operation.ADDED);
+            String info = "ADDED [Font: "+wordInfo2.getFont()+", Size: "+wordInfo2.getFontSize()+", Style: "+wordInfo2.getFontStyle()+"]";
+            wordInfo2.setInfo(info);
+            resultAdd.add(wordInfo2);
             j--;
         }
 
