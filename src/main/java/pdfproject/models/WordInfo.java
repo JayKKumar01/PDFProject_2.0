@@ -13,6 +13,7 @@ public class WordInfo {  // Equal, Deleted, or Added
     private final List<Operation> typeList = new ArrayList<>();
     private String word;
     private String info;
+    private boolean isChecked;
 
     public String getInfo() {
         return info;
@@ -64,21 +65,44 @@ public class WordInfo {  // Equal, Deleted, or Added
         }
         return null;
     }
-    public String getFont() {
+    public PDFont getPDFont() {
         TextPosition position = getFirstTextPosition();
         if (position == null){
             return null;
         }
-        return position.getFont().getName().toLowerCase().replace("mt","");
+        return position.getFont();
+    }
+    public String getJustFont() {
+        if (word.contains("tree") && !isChecked){
+            isChecked = true;
+            System.out.println(word + ": "+getPDFont().getName());
+        }
+        return getPDFont().getName();
+    }
+    public String getFont(){
+        String font = getJustFont();
+        if (font == null) {
+            return null;
+        }
+        if (font.contains("+")){
+            font = font.substring(font.indexOf("+")+1);
+        }
+        if (font.contains("-")){
+            font = font.replace(font.substring(font.lastIndexOf("-")),"");
+        }else if (font.contains(",")){
+            font = font.replace(font.substring(font.lastIndexOf(",")),"");
+        }
+        return font;
     }
 
     public String getFontStyle() {
-        String font = getFont();
+        String font = getJustFont();
         if (font == null){
-            return null;
+            return "unknown";
         }
+        font = font.toLowerCase().replace("mt","");
         if (font.contains("-")){
-            return (font.substring(font.lastIndexOf("-")+1)).toLowerCase();
+            return (font.substring(font.lastIndexOf("-")+1));
         }else if (font.contains(",")){
             return (font.substring(font.lastIndexOf(",")+1));
         }

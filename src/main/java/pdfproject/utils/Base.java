@@ -12,7 +12,8 @@ public class Base {
             return false;
         }
         return wordInfo1.getFont().equals(wordInfo2.getFont()) &&
-                wordInfo1.getFontSize() == wordInfo2.getFontSize() && wordInfo1.getFontStyle().equals(wordInfo2.getFontStyle());
+                wordInfo1.getFontSize() == wordInfo2.getFontSize() &&
+                wordInfo1.getFontStyle().equals(wordInfo2.getFontStyle());
     }
 
     public static void updateFontInfo(WordInfo wordInfo1, WordInfo wordInfo2) {
