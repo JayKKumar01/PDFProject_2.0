@@ -1,4 +1,5 @@
 package pdfproject.core;
+import org.apache.poi.sl.draw.geom.GuideIf;
 import pdfproject.enums.Info.Operation;
 import pdfproject.models.WordInfo;
 import pdfproject.utils.Base;
@@ -113,14 +114,14 @@ public class StringDiff {
             } else if (LCSuffix[i - 1][j] > LCSuffix[i][j - 1]) {
                 gotEqual = false;
                 wordInfo1.addType(Operation.DELETED);
-                String info = "DELETED [Font: "+wordInfo1.getFont()+", Size: "+wordInfo1.getFontSize()+", Style: "+wordInfo1.getFontStyle()+"]";
+                String info = Base.getInfo(Operation.DELETED, wordInfo1);
                 wordInfo1.setInfo(info);
                 resultDel.add(wordInfo1);
                 i--;
             } else {
                 gotEqual = false;
                 wordInfo2.addType(Operation.ADDED);
-                String info = "ADDED [Font: "+wordInfo2.getFont()+", Size: "+wordInfo2.getFontSize()+", Style: "+wordInfo2.getFontStyle()+"]";
+                String info = Base.getInfo(Operation.ADDED,wordInfo2);//"ADDED [Font: "+wordInfo2.getFont()+", Size: "+wordInfo2.getFontSize()+", Style: "+wordInfo2.getFontStyle()+"]";
                 wordInfo2.setInfo(info);
                 resultAdd.add(wordInfo2);
                 j--;
@@ -130,7 +131,7 @@ public class StringDiff {
         while (i > 0) {
             WordInfo wordInfo1 = words1.get(m-i);
             wordInfo1.addType(Operation.DELETED);
-            String info = "DELETED [Font: "+wordInfo1.getFont()+", Size: "+wordInfo1.getFontSize()+", Style: "+wordInfo1.getFontStyle()+"]";
+            String info = Base.getInfo(Operation.DELETED,wordInfo1);//"DELETED [Font: "+wordInfo1.getFont()+", Size: "+wordInfo1.getFontSize()+", Style: "+wordInfo1.getFontStyle()+"]";
             wordInfo1.setInfo(info);
             resultDel.add(wordInfo1);
             i--;
@@ -139,7 +140,7 @@ public class StringDiff {
         while (j > 0) {
             WordInfo wordInfo2 = words2.get(n-j);
             wordInfo2.addType(Operation.ADDED);
-            String info = "ADDED [Font: "+wordInfo2.getFont()+", Size: "+wordInfo2.getFontSize()+", Style: "+wordInfo2.getFontStyle()+"]";
+            String info = Base.getInfo(Operation.ADDED,wordInfo2);//"ADDED [Font: "+wordInfo2.getFont()+", Size: "+wordInfo2.getFontSize()+", Style: "+wordInfo2.getFontStyle()+"]";
             wordInfo2.setInfo(info);
             resultAdd.add(wordInfo2);
             j--;
@@ -147,6 +148,8 @@ public class StringDiff {
 
         return new CustomList(resultEql,resultDel,resultAdd);
     }
+
+
 
     private static void updateDelAddList(List<WordInfo> result) {
         for (WordInfo wordInfo: result){

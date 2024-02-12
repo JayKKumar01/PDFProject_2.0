@@ -14,6 +14,7 @@ public class WordInfo {
     private String info;
     private List<TextPosition> positions;
     private int pageNumber;
+    private int finalPageNumber = -1;
     private PDColor color;
     private boolean shouldCheck = true;
 
@@ -33,6 +34,16 @@ public class WordInfo {
     }
 
     // Accessors and Mutators
+
+
+    public int getFinalPageNumber() {
+        return finalPageNumber;
+    }
+
+    public void setFinalPageNumber(int finalPageNumber) {
+        this.finalPageNumber = finalPageNumber;
+    }
+
     public String getWord() {
         return word;
     }
@@ -141,6 +152,10 @@ public class WordInfo {
             return -1;
         }
         return Math.round(position.getFontSize());
+    }
+
+    public int getPosition(){
+        return (int) getFirstTextPosition().getY();
     }
 
     // toString method

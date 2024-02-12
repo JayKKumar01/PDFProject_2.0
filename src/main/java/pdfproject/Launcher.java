@@ -15,6 +15,7 @@ public class Launcher {
 //        pdf2 = pdf1;
 
         PDFProject pdfProject = new PDFProject(pdf1,pdf2);
+        pdfProject.setPageRangeForFile2(1,2);
         pdfProject.compare();
 
 

@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import pdfproject.Config.Colors;
+import pdfproject.utils.InfoDocUtil;
 
 import static pdfproject.utils.WordToPdfConverter.TEMP_DIR;
 
@@ -21,6 +22,7 @@ public class ModifyPDF {
     private PDDocument doc2;
     private List<WordInfo> list;
 
+
     public ModifyPDF(File pdf1, File pdf2, List<WordInfo> list) {
         this.doc1 = getDoc(pdf1);
         this.doc2 = getDoc(pdf2);
@@ -28,6 +30,10 @@ public class ModifyPDF {
     }
 
     public void updatePDFs(){
+
+
+
+
         for (WordInfo wordInfo : list) {
             List<Operation> typeList = wordInfo.getTypeList();
 
@@ -57,8 +63,10 @@ public class ModifyPDF {
         String path1 = TEMP_DIR +"/old.pdf";
         String path2 = TEMP_DIR +"/new.pdf";
         String path3 = TEMP_DIR +"/edited.pdf";
+        InfoDocUtil.setDoc(list,path3);
         decrypt(doc1);
         decrypt(doc2);
+        //decrypt(doc3);
 
         try {
             doc1.save(path1);

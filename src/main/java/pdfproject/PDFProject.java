@@ -18,6 +18,8 @@ public class PDFProject {
     private String outputPath = System.getProperty("user.home") + File.separator + "Downloads" + File.separator + "PDFProject";
     private File pdf1;
     private File pdf2;
+    List<Integer> pagesPDF1 = new ArrayList<>();
+    List<Integer> pagesPDF2 = new ArrayList<>();
 
     public PDFProject(String pdf1, String pdf2) {
         this.pdf1 = getFile(pdf1);
@@ -91,5 +93,38 @@ public class PDFProject {
             return pdfFile;
         }
         throw new IllegalArgumentException("Unsupported file format: " + path);
+    }
+
+    public void setPageForFile1(int page){
+        if (!pagesPDF1.isEmpty()){
+            pagesPDF1.clear();
+        }
+        pagesPDF1.add(page);
+    }
+    public void setPageForFile2(int page){
+        if (!pagesPDF2.isEmpty()){
+            pagesPDF2.clear();
+        }
+        pagesPDF2.add(page);
+    }
+
+
+
+
+    public void setPageRangeForFile1(int startPage, int endPage) {
+        if (!pagesPDF1.isEmpty()){
+            pagesPDF1.clear();
+        }
+        for (int i=startPage; i<=endPage; i++){
+            pagesPDF1.add(i);
+        }
+    }
+    public void setPageRangeForFile2(int startPage, int endPage) {
+        if (!pagesPDF2.isEmpty()){
+            pagesPDF2.clear();
+        }
+        for (int i=startPage; i<=endPage; i++){
+            pagesPDF2.add(i);
+        }
     }
 }

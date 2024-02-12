@@ -1,12 +1,34 @@
 package pdfproject.utils;
 
+import pdfproject.Config.Colors;
 import pdfproject.enums.Info;
 import pdfproject.models.WordInfo;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Base {
+    public static Color getColorFromOperations(List<Info.Operation> typeList) {
+        if (typeList.size() == 1) {
+            Info.Operation operation = typeList.get(0);
+            switch (operation) {
+                case FONT:
+                    return Colors.FONT_NAME_OPERATION_COLOR;
+                case SIZE:
+                    return Colors.FONT_SIZE_OPERATION_COLOR;
+                case STYLE:
+                    return Colors.FONT_STYLE_OPERATION_COLOR;
+                case ADDED:
+                    return Colors.ADDED_OPERATION_COLOR;
+                case DELETED:
+                    return Colors.DELETED_OPERATION_COLOR;
+                default:
+                    break;
+            }
+        }
+        return Colors.MULTIPLE_OPERATION_COLOR;
+    }
     public static boolean isFontInfoSame(WordInfo wordInfo1, WordInfo wordInfo2) {
         if (wordInfo1.getFont() == null || wordInfo2.getFont() == null) {
             return false;
@@ -52,5 +74,9 @@ public class Base {
         }
         builder.append("]");
         wordInfo2.setInfo(builder.toString());
+    }
+
+    public static String getInfo(Info.Operation operation, WordInfo wordInfo) {
+        return "["+operation.name()+": (Font: "+wordInfo.getFont()+", Size: "+wordInfo.getFontSize()+", Style: "+wordInfo.getFontStyle()+")]";
     }
 }

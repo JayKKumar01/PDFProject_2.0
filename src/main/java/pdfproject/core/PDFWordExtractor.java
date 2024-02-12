@@ -18,8 +18,11 @@ public class PDFWordExtractor extends PDFTextStripper {
     private final List<PDColor> colorList = new ArrayList<>();
 
     int colorIndex = 0;
+    private int minPageNum = Integer.MAX_VALUE;
+    private int maxPageNum = Integer.MIN_VALUE;
+    private boolean modifyPageNum;
+
     private PDDocument document;
-    //PDDocument doc = PDDocument.load(file, MemoryUsageSetting.setupTempFileOnly());
 
     public PDFWordExtractor(File file, List<Integer> pages) throws IOException {
         this.document = PDDocument.load(file, MemoryUsageSetting.setupTempFileOnly());
@@ -37,9 +40,14 @@ public class PDFWordExtractor extends PDFTextStripper {
         addOperator(new SetNonStrokingColor());
         addOperator(new SetNonStrokingColorN());
         //super();
+        for (int pageNum: pages){
+            maxPageNum = Math.max(maxPageNum,pageNum);
+            minPageNum = Math.min(minPageNum,pageNum);
+        }
         if (pages.isEmpty()){
             this.getText(document);
         }else {
+            modifyPageNum = true;
             for (int page: pages){
                 this.setStartPage(page);
                 this.setEndPage(page);
@@ -82,6 +90,8 @@ public class PDFWordExtractor extends PDFTextStripper {
                 }
                 WordInfo wordInfo = new WordInfo(word, positions);
                 wordInfo.setPageNumber(this.getCurrentPageNo());
+                int pageNum = modifyPageNum ? this.getCurrentPageNo()-minPageNum + 1 : this.getCurrentPageNo();
+                wordInfo.setFinalPageNumber(pageNum);
                 PDColor color = getGraphicsState().getNonStrokingColor();
                 wordInfo.setColor(color);
 //                wordInfo.setColor(colorList.get(i+colorIndex));
@@ -91,5 +101,7 @@ public class PDFWordExtractor extends PDFTextStripper {
         }
 //        colorIndex += textPositions.size();
     }
+
+
 
 }
