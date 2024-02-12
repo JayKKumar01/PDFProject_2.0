@@ -4,6 +4,7 @@ import pdfproject.core.StringDiff;
 import pdfproject.enums.Info;
 import pdfproject.enums.Info.Constants;
 import pdfproject.models.WordInfo;
+import pdfproject.modifications.ModifyPDF;
 import pdfproject.utils.Base;
 import pdfproject.utils.PDFUtil;
 import pdfproject.utils.WordToPdfConverter;
@@ -43,23 +44,12 @@ public class PDFProject {
             }
             System.out.println(wordInfo.getWord()+": "+wordInfo.getInfo());
         }
-//        for (WordInfo wordInfo: list){
-//            Info.Operation type = wordInfo.getType();
-//            if (type == Info.Operation.EQUAL){
-//                list.remove(wordInfo);
-////                System.out.println(++i);
-//                continue;
-//            }
-//            System.out.println(wordInfo.getWord()+": "+type);
-//            //System.out.println(wordInfo.getWord()+": "+wordInfo.getFont()+" - "+wordInfo.getFontSize() +" - "+wordInfo.getFontStyle());
-//        }
         System.out.println(list1.size()+" "+list2.size()+": "+list.size());
 
-        // store list of wordInfo from pdf1
-        // store list of wordInfo from pdf2
+        ModifyPDF modifyPDF = new ModifyPDF(pdf1,pdf2,list);
+        modifyPDF.updatePDFs();
 
-        //but using a different class using pdfbox library but take the list page by page only to optimize for
-        //large pdf files
+
 
     }
 
