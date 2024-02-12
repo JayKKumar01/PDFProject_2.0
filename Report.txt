@@ -1,0 +1,61 @@
+Flow of the code process from launching the main method to the comparison done:
+
+---
+
+# PDF Processing Application - Code Flow Explanation
+
+## 1. Main Method Launch
+
+1. **Word-to-PDF Conversion:**
+   - The application starts by launching the `main` method in the `Launcher` class.
+   - The `Launcher` class initializes necessary configurations.
+   - If required, it utilizes the `WordToPdfConverter` class to convert Microsoft Word documents to PDF format.
+
+2. **PDF Text and Formatting Extraction:**
+   - The `PDFWordExtractor` class is instantiated with the input PDF file and a list of specific pages (optional).
+   - The `PDFWordExtractor` class extends `PDFTextStripper` from the `pdfbox` library.
+   - It extracts text positions, including font, size, style, and color information, for each word in the PDF.
+   - The extracted information is stored in `WordInfo` objects.
+
+## 2. WordInfo Class
+
+1. **Word Information Representation:**
+   - The `WordInfo` class represents information about a word in a PDF document.
+   - It stores data such as word, type list, page number, font, size, style, and color.
+   - Methods are provided to retrieve font-related information and other details.
+
+## 3. Text Comparison and Visualization
+
+1. **Text Comparison:**
+   - The `Base` class contains utility methods used for text comparison.
+   - It compares `WordInfo` objects based on font information.
+   - The comparison is performed batch-wise for efficiency.
+
+2. **Updating Font Information:**
+   - The `Base` class also contains methods for updating font information in `WordInfo` objects.
+   - It identifies differences in font, size, and style, and updates the information accordingly.
+
+3. **Color Representation:**
+   - The `Colors` class in the `Config` package defines color constants for different operations.
+   - The `Base` class uses these constants to represent colors in the application.
+
+4. **Visualization:**
+   - The `InfoDocUtil` class converts the list of `WordInfo` objects into a PDF document.
+   - It sorts and processes the `WordInfo` objects, merging overlapping text positions.
+   - The resulting PDF visually represents the information with color-coded text based on operations.
+
+## 4. Image Generation
+
+1. **PDF to Image Conversion:**
+   - The `PDFToImageConverter` class converts PDF documents to a sequence of images.
+   - It utilizes `PDFRenderer` from the `pdfbox` library to render images.
+   - Images from multiple PDFs are combined horizontally, and a new image file is created for each page.
+
+## 5. Configuration and Enums
+
+1. **Configuration Constants:**
+   - The `Config` class holds configuration constants for the application.
+   - It configures the batch size for word comparison and image quality.
+
+2. **Enums:**
+   - The `enums` package contains an `Info` class defining enums for image quality and document operations.

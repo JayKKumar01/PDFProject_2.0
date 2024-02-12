@@ -1,0 +1,73 @@
+## PDF Comparison and Modification Application
+
+### **Introduction:**
+This application provides a comprehensive solution for comparing and visualizing differences between two PDF documents. The process involves multiple steps, each contributing to the overall functionality of the program.
+
+---
+
+### **Step 1: Main Method Execution (`Launcher` Class):**
+- The main entry point of the application is the `Launcher` class.
+- It initializes the required components and orchestrates the overall flow of the application.
+- The `Launcher` class is responsible for interacting with the user, obtaining input parameters, and invoking subsequent steps.
+
+---
+
+### **Step 2: PDF Conversion (`WordToPdfConverter` Class):**
+- Before comparing PDFs, it is essential to convert any Word documents to PDF format.
+- The `WordToPdfConverter` class handles the conversion process using the `documents4j` library.
+- Word documents are converted to temporary PDF files for further processing.
+
+---
+
+### **Step 3: PDF Text Extraction (`PDFWordExtractor` Class):**
+- The `PDFWordExtractor` class extracts text information from the PDF documents.
+- It uses the `pdfbox` library to parse PDF content and identify words along with their attributes.
+- The extracted text information is stored in `WordInfo` objects for further analysis.
+
+---
+
+### **Step 4: Word Information Processing (`WordInfo` Class):**
+- The `WordInfo` class encapsulates information about words in the PDF, including their text, position, and formatting details.
+- Different constructors accommodate various scenarios, such as creating `WordInfo` objects for individual words, words with specified operations, or words with associated text positions.
+- Methods within the class facilitate the retrieval of font-related details, font style, and font size.
+
+---
+
+### **Step 5: Word Comparison and Analysis (`TextComparator` Class):**
+- The `TextComparator` class handles the comparison of words between two PDFs.
+- It identifies added, deleted, and unchanged words, storing the results in `StringDiff` objects.
+- The comparison process utilizes the `daff` library for string differences and the `TextDiff` class for text-based differences.
+
+---
+
+### **Step 6: String Difference and PDF Modification:**
+#### 1. **StringDiff Class:**
+   - The `StringDiff` class compares two strings using the Longest Common Subsequence (LCS) algorithm.
+   - Differences are represented using HTML-like tags to highlight additions and deletions.
+
+#### 2. **ModifyPdf Class:**
+   - The `ModifyPdf` class facilitates modifications to existing PDF documents.
+   - It uses the `pdfbox` library to manipulate PDF content, highlighting added and deleted text based on differences identified by the `StringDiff` class.
+
+#### 3. **PDF Text Modification:**
+   - `ModifyPdf` incorporates methods to annotate and visually represent differences in PDF content.
+   - Differences identified during the text comparison process are used to modify PDFs, allowing users to view highlighted changes.
+
+---
+
+### **Step 7: PDF to Image Conversion (`PDFToImageConverter` Class):**
+- The `PDFToImageConverter` class handles the conversion of PDF pages to images.
+- It utilizes the `pdfbox` library to render each page as an image, considering the specified DPI (dots per inch).
+- The images are stored as `BufferedImage` objects for further processing.
+
+---
+
+### **Step 8: Combine Images of Both PDFs (`PDFToImageConverter` Class Extended):**
+- The `PDFToImageConverter` class is extended to handle the combination of images from both PDFs.
+- It loads images from each PDF and combines corresponding pages side by side.
+- The combined images highlight differences by presenting content from both PDFs.
+
+---
+
+### **Conclusion:**
+The application now includes an extended capability to combine images from different PDFs, providing a visual representation of differences in corresponding pages. This enhancement facilitates a comprehensive analysis of both text and image content within PDF documents.
