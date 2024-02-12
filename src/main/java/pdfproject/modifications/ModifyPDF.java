@@ -5,12 +5,15 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.text.TextPosition;
+import pdfproject.Launcher;
 import pdfproject.enums.Info.Operation;
+import pdfproject.imageutils.PDFToImageConverter;
 import pdfproject.models.WordInfo;
 
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import pdfproject.Config.Colors;
 import pdfproject.utils.InfoDocUtil;
@@ -21,6 +24,7 @@ public class ModifyPDF {
     private PDDocument doc1;
     private PDDocument doc2;
     private List<WordInfo> list;
+    private List<File> files = new ArrayList<>();
 
 
     public ModifyPDF(File pdf1, File pdf2, List<WordInfo> list) {
@@ -85,7 +89,12 @@ public class ModifyPDF {
         }
 
 
-
+        files.add(new File(path1));
+        files.add(new File(path2));
+        files.add(new File(path3));
+    }
+    public List<File> getFiles(){
+        return files;
     }
 
     private static void addRect(WordInfo wordInfo, PDDocument document, Color color){

@@ -3,6 +3,7 @@ package pdfproject;
 import pdfproject.core.StringDiff;
 import pdfproject.enums.Info;
 import pdfproject.enums.Info.Constants;
+import pdfproject.imageutils.PDFToImageConverter;
 import pdfproject.models.WordInfo;
 import pdfproject.modifications.ModifyPDF;
 import pdfproject.utils.Base;
@@ -10,6 +11,7 @@ import pdfproject.utils.PDFUtil;
 import pdfproject.utils.WordToPdfConverter;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -50,7 +52,19 @@ public class PDFProject {
 
         ModifyPDF modifyPDF = new ModifyPDF(pdf1,pdf2,list);
         modifyPDF.updatePDFs();
+        List<File> files = modifyPDF.getFiles();
+        File file1 = files.get(0);
+        File file2 = files.get(1);
+        File file3 = files.get(2);
+        Launcher.tempFiles.add(file1);
+        Launcher.tempFiles.add(file2);
+        Launcher.tempFiles.add(file3);
 
+        try {
+            PDFToImageConverter.createImage(file1, file2,file3,outputPath,pagesPDF1,pagesPDF2);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
 
     }
