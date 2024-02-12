@@ -1,0 +1,13 @@
+Step,Description
+1,Launch the main method in the `Launcher` class.
+2,Read PDF files and convert Word files to PDF.
+3,Extract text from PDF using `PDFWordExtractor`.
+4,Extract information from text using `WordInfo` and populate `WordInfo` objects.
+5,Compare WordInfo objects and identify changes.
+6,Process and categorize differences using `Base` and `InfoDocUtil` classes.
+7,Generate Word and PDF files for visual representation of changes.
+8,Extract images from PDF files using `PDFToImageConverter`.
+9,Compare images to identify visual differences.
+10,Categorize image differences.
+11,Combine images of both PDFs with visual differences highlighted.
+12,"Create reports, logs, and README files."
