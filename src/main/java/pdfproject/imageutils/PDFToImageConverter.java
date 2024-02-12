@@ -2,6 +2,7 @@ package pdfproject.imageutils;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
+import pdfproject.Config;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -22,7 +23,7 @@ public class PDFToImageConverter {
             }
 
             for (int i : pages) {
-                BufferedImage image = renderer.renderImageWithDPI(i - 1, 300); // set the DPI to 300
+                BufferedImage image = renderer.renderImageWithDPI(i - 1, Config.IMAGE_QUALITY); // set the DPI to 300
                 pageImages.add(image);
             }
 

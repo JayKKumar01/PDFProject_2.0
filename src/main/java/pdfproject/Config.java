@@ -1,9 +1,12 @@
 package pdfproject;
 
+import pdfproject.enums.Info.*;
+
 import java.awt.*;
 
 public class Config {
     public static final int WORD_BATCH_SIZE_FOR_COMPARISON = 20; //adjust this to get faster calculation
+    public static final int IMAGE_QUALITY = ImageQuality.LOW; //adjust this to get faster calculation
 
 
     public static class Colors {
