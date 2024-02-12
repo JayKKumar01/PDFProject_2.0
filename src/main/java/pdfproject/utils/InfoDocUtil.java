@@ -15,10 +15,8 @@ import pdfproject.models.WordInfo;
 
 import java.awt.*;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class InfoDocUtil {
@@ -41,12 +39,32 @@ public class InfoDocUtil {
         for (WordInfo wordInfo : list) {
             int pageNumber = wordInfo.getPageNumber();
             Info info = new Info(wordInfo.getWord(),wordInfo.getInfo(),wordInfo.getPDFont(),Base.getColorFromOperations(wordInfo.getTypeList()));
-            info.setWordColor(wordInfo.getColor());
+            info.setPositionY(wordInfo.getPosition());
 
             // If the page number is not already in the map, create a new list
             // Otherwise, add the info to the existing list for that page
             pageToInfoListMap.computeIfAbsent(pageNumber, k -> new ArrayList<>()).add(info);
         }
+
+
+        for (List<Info> li : pageToInfoListMap.values()) {
+            Iterator<Info> iterator = li.iterator();
+            Info a = null;
+            if (iterator.hasNext()){
+                a = iterator.next();
+            }
+            while (iterator.hasNext()) {
+                Info b = iterator.next();
+                if (a.getInfo().equals(b.getInfo()) && a.getPositionY() == b.getPositionY()) {
+                    a.setSentence(a.getSentence() + " " + b.getSentence());
+                    // Remove the second element (b) after setting the sentence
+                    iterator.remove();
+                }else {
+                    a = b;
+                }
+            }
+        }
+
 
         // Convert the map entries to a list of lists, sorted by page number
 
@@ -105,7 +123,7 @@ public class InfoDocUtil {
         String info;
         PDFont font;
         Color color;
-        PDColor wordColor;
+        int positionY;
 
         public Info(String sentence, String info, PDFont font, Color color) {
             this.sentence = sentence;
@@ -114,12 +132,16 @@ public class InfoDocUtil {
             this.color = color;
         }
 
-        public PDColor getWordColor() {
-            return wordColor;
+        public int getPositionY() {
+            return positionY;
         }
 
-        public void setWordColor(PDColor wordColor) {
-            this.wordColor = wordColor;
+        public void setPositionY(int positionY) {
+            this.positionY = positionY;
+        }
+
+        public void setSentence(String sentence) {
+            this.sentence = sentence;
         }
 
         public String getSentence() {
