@@ -13,20 +13,106 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Extracts words and related information from a PDF document.
+ */
 public class PDFWordExtractor extends PDFTextStripper {
     private final List<WordInfo> wordList = new ArrayList<>();
     private final List<PDColor> colorList = new ArrayList<>();
 
-    int colorIndex = 0;
+    private int colorIndex = 0;
     private int minPageNum = Integer.MAX_VALUE;
     private int maxPageNum = Integer.MIN_VALUE;
     private boolean modifyPageNum;
 
     private PDDocument document;
 
+    /**
+     * Constructs a PDFWordExtractor for the specified file and pages.
+     *
+     * @param file  The PDF file to extract words from.
+     * @param pages The list of page numbers to extract words from.
+     * @throws IOException If an I/O error occurs while loading the PDF file.
+     */
     public PDFWordExtractor(File file, List<Integer> pages) throws IOException {
         this.document = PDDocument.load(file, MemoryUsageSetting.setupTempFileOnly());
-//        this.document = PDDocument.load(file);
+
+        // Adding color-related operators for text extraction
+        addColorOperators();
+
+        for (int pageNum : pages) {
+            maxPageNum = Math.max(maxPageNum, pageNum);
+            minPageNum = Math.min(minPageNum, pageNum);
+        }
+
+        if (pages.isEmpty()) {
+            this.getText(document);
+        } else {
+            modifyPageNum = true;
+            for (int page : pages) {
+                this.setStartPage(page);
+                this.setEndPage(page);
+                this.getText(document);
+            }
+        }
+    }
+
+    /**
+     * Gets the list of WordInfo extracted from the PDF.
+     *
+     * @return List of WordInfo objects representing words and related information.
+     */
+    public List<WordInfo> getWordList() {
+        try {
+            document.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return wordList;
+    }
+
+    // Uncomment the following method if you want to process each TextPosition individually
+    // and store corresponding colors in colorList.
+    //    @Override
+    //    protected void processTextPosition(TextPosition text) {
+    //        super.processTextPosition(text);
+    //        PDColor color = getGraphicsState().getNonStrokingColor();
+    //        colorList.add(color);
+    //    }
+
+    /**
+     * Overrides the writeString method to process each word and related information.
+     *
+     * @param string         The string to be processed.
+     * @param textPositions  The list of TextPosition objects representing positions of the string in the PDF.
+     */
+    @Override
+    protected void writeString(String string, List<TextPosition> textPositions) {
+        String[] words = string.split(getWordSeparator());
+        int i = 0;
+
+        for (String word : words) {
+            if (!word.isEmpty()) {
+                List<TextPosition> positions = new ArrayList<>();
+                for (int j = i; j < i + word.length(); j++) {
+                    positions.add(textPositions.get(j));
+                }
+                WordInfo wordInfo = new WordInfo(word, positions);
+                wordInfo.setPageNumber(this.getCurrentPageNo());
+                int pageNum = modifyPageNum ? this.getCurrentPageNo() - minPageNum + 1 : this.getCurrentPageNo();
+                wordInfo.setFinalPageNumber(pageNum);
+                PDColor color = getGraphicsState().getNonStrokingColor();
+                wordInfo.setColor(color);
+                wordList.add(wordInfo);
+            }
+            i += word.length() + 1;
+        }
+    }
+
+    /**
+     * Adds color-related operators for text extraction.
+     */
+    private void addColorOperators() {
         addOperator(new SetStrokingColorSpace());
         addOperator(new SetNonStrokingColorSpace());
         addOperator(new SetStrokingDeviceCMYKColor());
@@ -39,69 +125,5 @@ public class PDFWordExtractor extends PDFTextStripper {
         addOperator(new SetStrokingColorN());
         addOperator(new SetNonStrokingColor());
         addOperator(new SetNonStrokingColorN());
-        //super();
-        for (int pageNum: pages){
-            maxPageNum = Math.max(maxPageNum,pageNum);
-            minPageNum = Math.min(minPageNum,pageNum);
-        }
-        if (pages.isEmpty()){
-            this.getText(document);
-        }else {
-            modifyPageNum = true;
-            for (int page: pages){
-                this.setStartPage(page);
-                this.setEndPage(page);
-                this.getText(document);
-            }
-        }
-
     }
-
-    public List<WordInfo> getWordList() {
-        try {
-            document.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return wordList;
-    }
-
-//    @Override
-//    protected void processTextPosition(TextPosition text) {
-//        super.processTextPosition(text);
-//        PDColor color = getGraphicsState().getNonStrokingColor();
-//        colorList.add(color);
-//    }
-
-    @Override
-    protected void writeString(String string, List<TextPosition> textPositions) {
-
-        String[] words = string.split(getWordSeparator());
-        int i = 0;
-
-        for (String word : words) {
-            if (!word.isEmpty()) {
-                List<TextPosition> positions = new ArrayList<>();
-//                if (textPositions.size() > i) {
-//                    positions.add(textPositions.get(i));
-//                }
-                for (int j = i; j < i + word.length(); j++) {
-                    positions.add(textPositions.get(j));
-                }
-                WordInfo wordInfo = new WordInfo(word, positions);
-                wordInfo.setPageNumber(this.getCurrentPageNo());
-                int pageNum = modifyPageNum ? this.getCurrentPageNo()-minPageNum + 1 : this.getCurrentPageNo();
-                wordInfo.setFinalPageNumber(pageNum);
-                PDColor color = getGraphicsState().getNonStrokingColor();
-                wordInfo.setColor(color);
-//                wordInfo.setColor(colorList.get(i+colorIndex));
-                wordList.add(wordInfo);
-            }
-            i += word.length() + 1;
-        }
-//        colorIndex += textPositions.size();
-    }
-
-
-
 }

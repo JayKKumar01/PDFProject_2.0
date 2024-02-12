@@ -6,8 +6,6 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.pdfbox.pdmodel.graphics.color.PDColor;
-import org.apache.pdfbox.text.TextPosition;
 import org.apache.pdfbox.util.Matrix;
 import pdfproject.Config.Colors;
 import pdfproject.enums.Info;
@@ -19,26 +17,43 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Utility class for generating PDF documents with extracted information.
+ */
 public class InfoDocUtil {
 
-    public static void setDoc(List<WordInfo> list,String path) {
+    /**
+     * Creates and saves a PDF document with extracted information.
+     *
+     * @param list List of WordInfo objects containing extracted information.
+     * @param path Path to save the generated PDF document.
+     */
+    public static void setDoc(List<WordInfo> list, String path) {
         try {
             List<List<Info>> masterList = toMasterList(list);
-            addText(masterList,path);
+            addText(masterList, path);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Converts a list of WordInfo objects into a master list of Info objects, grouped by page number.
+     *
+     * @param list List of WordInfo objects.
+     * @return List of lists containing Info objects, grouped by page number.
+     */
     private static List<List<Info>> toMasterList(List<WordInfo> list) {
+        // Sorting the WordInfo list based on custom criteria
         list.sort(new SortingUtil());
+
         // Create a map to store Info lists for each page number
         Map<Integer, List<Info>> pageToInfoListMap = new HashMap<>();
 
         // Iterate through WordInfo objects and populate the map
         for (WordInfo wordInfo : list) {
             int pageNumber = wordInfo.getPageNumber();
-            Info info = new Info(wordInfo.getWord(),wordInfo.getInfo(),wordInfo.getPDFont(),Base.getColorFromOperations(wordInfo.getTypeList()));
+            Info info = new Info(wordInfo.getWord(), wordInfo.getInfo(), wordInfo.getPDFont(), Base.getColorFromOperations(wordInfo.getTypeList()));
             info.setPositionY(wordInfo.getPosition());
 
             // If the page number is not already in the map, create a new list
@@ -46,35 +61,38 @@ public class InfoDocUtil {
             pageToInfoListMap.computeIfAbsent(pageNumber, k -> new ArrayList<>()).add(info);
         }
 
-
+        // Combine adjacent Info objects with the same info and positionY
         for (List<Info> li : pageToInfoListMap.values()) {
             Iterator<Info> iterator = li.iterator();
-            Info a = null;
-            if (iterator.hasNext()){
-                a = iterator.next();
-            }
+            Info a = iterator.hasNext() ? iterator.next() : null;
+
             while (iterator.hasNext()) {
                 Info b = iterator.next();
-                if (a.getInfo().equals(b.getInfo()) && a.getPositionY() == b.getPositionY()) {
+                if (a != null && a.getInfo().equals(b.getInfo()) && a.getPositionY() == b.getPositionY()) {
                     a.setSentence(a.getSentence() + " " + b.getSentence());
                     // Remove the second element (b) after setting the sentence
                     iterator.remove();
-                }else {
+                } else {
                     a = b;
                 }
             }
         }
 
-
         // Convert the map entries to a list of lists, sorted by page number
-
         return pageToInfoListMap.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .map(Map.Entry::getValue)
                 .collect(Collectors.toList());
     }
-    public static void addText(List<List<Info>> masterList, String path) throws IOException {
 
+    /**
+     * Adds text to a PDF document based on the provided list of Info objects.
+     *
+     * @param masterList List of lists containing Info objects, grouped by page number.
+     * @param path       Path to save the generated PDF document.
+     * @throws IOException If an I/O error occurs.
+     */
+    public static void addText(List<List<Info>> masterList, String path) throws IOException {
         int margin = 60;
 
         PDDocument document = new PDDocument();
@@ -90,20 +108,17 @@ public class InfoDocUtil {
             for (Info in : infos) {
                 float yLimit = page.getMediaBox().getHeight() - wordHeight - margin;
 
-                try(PDPageContentStream contentStream = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.APPEND, true, true);) {
+                try (PDPageContentStream contentStream = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.APPEND, true, true)) {
 
                     contentStream.beginText();
-
                     contentStream.setTextMatrix(Matrix.getTranslateInstance(20, yLimit));
-//
                     contentStream.setNonStrokingColor(Color.BLACK);
-                    contentStream.setFont(PDType1Font.TIMES_ROMAN,12);
+                    contentStream.setFont(PDType1Font.TIMES_ROMAN, 12);
                     contentStream.showText(in.getSentence());
 
-//
                     contentStream.setNonStrokingColor(in.getColor());
                     contentStream.setFont(PDType1Font.TIMES_ROMAN, 10);
-//
+
                     contentStream.setTextMatrix(Matrix.getTranslateInstance(20, yLimit - 20));
                     contentStream.showText(in.getInfo());
                     contentStream.endText();
@@ -116,14 +131,15 @@ public class InfoDocUtil {
         document.close();
     }
 
-
-
-    private static class Info{
-        String sentence;
-        String info;
-        PDFont font;
-        Color color;
-        int positionY;
+    /**
+     * Inner class representing information to be included in the PDF document.
+     */
+    private static class Info {
+        private String sentence;
+        private String info;
+        private PDFont font;
+        private Color color;
+        private int positionY;
 
         public Info(String sentence, String info, PDFont font, Color color) {
             this.sentence = sentence;

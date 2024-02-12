@@ -5,10 +5,19 @@ import pdfproject.enums.Info;
 import pdfproject.models.WordInfo;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Utility class providing various helper methods for PDF project.
+ */
 public class Base {
+
+    /**
+     * Gets color based on a list of operations.
+     *
+     * @param typeList List of operations.
+     * @return Color corresponding to the operations.
+     */
     public static Color getColorFromOperations(List<Info.Operation> typeList) {
         if (typeList.size() == 1) {
             Info.Operation operation = typeList.get(0);
@@ -29,6 +38,14 @@ public class Base {
         }
         return Colors.MULTIPLE_OPERATION_COLOR;
     }
+
+    /**
+     * Checks if font information of two WordInfo objects is the same.
+     *
+     * @param wordInfo1 First WordInfo object.
+     * @param wordInfo2 Second WordInfo object.
+     * @return True if font information is the same, false otherwise.
+     */
     public static boolean isFontInfoSame(WordInfo wordInfo1, WordInfo wordInfo2) {
         if (wordInfo1.getFont() == null || wordInfo2.getFont() == null) {
             return false;
@@ -38,6 +55,12 @@ public class Base {
                 wordInfo1.getFontStyle().equals(wordInfo2.getFontStyle());
     }
 
+    /**
+     * Updates font information of the second WordInfo object based on the differences with the first one.
+     *
+     * @param wordInfo1 First WordInfo object.
+     * @param wordInfo2 Second WordInfo object.
+     */
     public static void updateFontInfo(WordInfo wordInfo1, WordInfo wordInfo2) {
 
         StringBuilder builder = new StringBuilder();
@@ -76,6 +99,13 @@ public class Base {
         wordInfo2.setInfo(builder.toString());
     }
 
+    /**
+     * Gets information string based on the operation and WordInfo.
+     *
+     * @param operation Type of operation.
+     * @param wordInfo  WordInfo object.
+     * @return Information string.
+     */
     public static String getInfo(Info.Operation operation, WordInfo wordInfo) {
         return "["+operation.name()+": (Font: "+wordInfo.getFont()+", Size: "+wordInfo.getFontSize()+", Style: "+wordInfo.getFontStyle()+")]";
     }

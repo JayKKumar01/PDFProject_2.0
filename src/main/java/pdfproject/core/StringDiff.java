@@ -1,4 +1,5 @@
 package pdfproject.core;
+
 import org.apache.poi.sl.draw.geom.GuideIf;
 import pdfproject.enums.Info.Operation;
 import pdfproject.models.WordInfo;
@@ -10,66 +11,80 @@ import java.util.List;
 
 import static pdfproject.Config.WORD_BATCH_SIZE_FOR_COMPARISON;
 
+/**
+ * Class for comparing two lists of WordInfo objects and identifying differences.
+ */
 public class StringDiff {
-    public static List<WordInfo> List(List<WordInfo> words1, List<WordInfo> words2){
-        if (words1 == null || words2 == null){
+
+    /**
+     * Compares two lists of WordInfo objects and identifies differences.
+     *
+     * @param words1 List of WordInfo objects from the first source.
+     * @param words2 List of WordInfo objects from the second source.
+     * @return A list of WordInfo objects representing the differences between the two lists.
+     */
+    public static List<WordInfo> List(List<WordInfo> words1, List<WordInfo> words2) {
+        if (words1 == null || words2 == null) {
             return null;
         }
+
         List<WordInfo> list = new ArrayList<>();
         List<WordInfo> listDel = new ArrayList<>();
         List<WordInfo> listAdd = new ArrayList<>();
 
-
         int a = 0;
         int b = 0;
 
-        int m,n;
+        int m, n;
 
         int batchSize = WORD_BATCH_SIZE_FOR_COMPARISON;
 
-        //long currentTime = System.currentTimeMillis();
-
-        while (a < words1.size() || b < words2.size()){
-            m = Math.min(batchSize,words1.size()-a);
-            n = Math.min(batchSize,words2.size()-b);
+        while (a < words1.size() || b < words2.size()) {
+            m = Math.min(batchSize, words1.size() - a);
+            n = Math.min(batchSize, words2.size() - b);
 
             List<WordInfo> list1 = new ArrayList<>();
-            for (WordInfo wordInfo: listDel){
-                if (wordInfo.isShouldCheck()){
+            for (WordInfo wordInfo : listDel) {
+                if (wordInfo.isShouldCheck()) {
                     list1.add(wordInfo);
-                }else {
+                } else {
                     list.add(wordInfo);
                 }
             }
-            list1.addAll(words1.subList(a,a+m));
+            list1.addAll(words1.subList(a, a + m));
 
             List<WordInfo> list2 = new ArrayList<>();
-            for (WordInfo wordInfo: listAdd){
-                if (wordInfo.isShouldCheck()){
+            for (WordInfo wordInfo : listAdd) {
+                if (wordInfo.isShouldCheck()) {
                     list2.add(wordInfo);
-                }else {
+                } else {
                     list.add(wordInfo);
                 }
             }
-            list2.addAll(words2.subList(b,b+n));
-            CustomList customList = getList(list1,list2);
+            list2.addAll(words2.subList(b, b + n));
+            CustomList customList = getList(list1, list2);
 
             list.addAll(customList.getResultEql());
-
             listDel = customList.getResultDel();
             listAdd = customList.getResultAdd();
 
             a += m;
             b += n;
-
         }
+
         list.addAll(listDel);
         list.addAll(listAdd);
 
-        //System.out.println(System.currentTimeMillis()-currentTime+" millis");
-
         return list;
     }
+
+    /**
+     * Gets a custom list containing information about equal, deleted, and added WordInfo objects.
+     *
+     * @param words1 List of WordInfo objects from the first source.
+     * @param words2 List of WordInfo objects from the second source.
+     * @return CustomList containing equal, deleted, and added WordInfo objects.
+     */
     public static CustomList getList(List<WordInfo> words1, List<WordInfo> words2) {
         int m = words1.size();
         int n = words2.size();
@@ -84,6 +99,7 @@ public class StringDiff {
                 }
             }
         }
+
         List<WordInfo> resultEql = new ArrayList<>();
         List<WordInfo> resultDel = new ArrayList<>();
         List<WordInfo> resultAdd = new ArrayList<>();
@@ -102,11 +118,11 @@ public class StringDiff {
                     updateDelAddList(resultDel);
                     updateDelAddList(resultAdd);
                 }
-                if (Base.isFontInfoSame(wordInfo1,wordInfo2)) {
+                if (Base.isFontInfoSame(wordInfo1, wordInfo2)) {
                     wordInfo1.addType(Operation.EQUAL);
                     resultEql.add(wordInfo1);
-                }else{
-                    Base.updateFontInfo(wordInfo1,wordInfo2);
+                } else {
+                    Base.updateFontInfo(wordInfo1, wordInfo2);
                     resultEql.add(wordInfo2);
                 }
                 i--;
@@ -121,7 +137,7 @@ public class StringDiff {
             } else {
                 gotEqual = false;
                 wordInfo2.addType(Operation.ADDED);
-                String info = Base.getInfo(Operation.ADDED,wordInfo2);//"ADDED [Font: "+wordInfo2.getFont()+", Size: "+wordInfo2.getFontSize()+", Style: "+wordInfo2.getFontStyle()+"]";
+                String info = Base.getInfo(Operation.ADDED, wordInfo2);
                 wordInfo2.setInfo(info);
                 resultAdd.add(wordInfo2);
                 j--;
@@ -129,34 +145,40 @@ public class StringDiff {
         }
 
         while (i > 0) {
-            WordInfo wordInfo1 = words1.get(m-i);
+            WordInfo wordInfo1 = words1.get(m - i);
             wordInfo1.addType(Operation.DELETED);
-            String info = Base.getInfo(Operation.DELETED,wordInfo1);//"DELETED [Font: "+wordInfo1.getFont()+", Size: "+wordInfo1.getFontSize()+", Style: "+wordInfo1.getFontStyle()+"]";
+            String info = Base.getInfo(Operation.DELETED, wordInfo1);
             wordInfo1.setInfo(info);
             resultDel.add(wordInfo1);
             i--;
         }
 
         while (j > 0) {
-            WordInfo wordInfo2 = words2.get(n-j);
+            WordInfo wordInfo2 = words2.get(n - j);
             wordInfo2.addType(Operation.ADDED);
-            String info = Base.getInfo(Operation.ADDED,wordInfo2);//"ADDED [Font: "+wordInfo2.getFont()+", Size: "+wordInfo2.getFontSize()+", Style: "+wordInfo2.getFontStyle()+"]";
+            String info = Base.getInfo(Operation.ADDED, wordInfo2);
             wordInfo2.setInfo(info);
             resultAdd.add(wordInfo2);
             j--;
         }
 
-        return new CustomList(resultEql,resultDel,resultAdd);
+        return new CustomList(resultEql, resultDel, resultAdd);
     }
 
-
-
+    /**
+     * Updates the 'shouldCheck' attribute for WordInfo objects in the provided list.
+     *
+     * @param result List of WordInfo objects to be updated.
+     */
     private static void updateDelAddList(List<WordInfo> result) {
-        for (WordInfo wordInfo: result){
+        for (WordInfo wordInfo : result) {
             wordInfo.setShouldCheck(false);
         }
     }
 
+    /**
+     * CustomList class to encapsulate lists of equal, deleted, and added WordInfo objects.
+     */
     public static class CustomList {
         private List<WordInfo> resultEql;
         private List<WordInfo> resultDel;
@@ -192,5 +214,4 @@ public class StringDiff {
             this.resultAdd = resultAdd;
         }
     }
-
 }

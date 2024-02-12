@@ -8,6 +8,10 @@ import pdfproject.enums.Info.Operation;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents information about a word in a PDF document.
+ */
+
 public class WordInfo {
     private final List<Operation> typeList = new ArrayList<>();
     private String word;
