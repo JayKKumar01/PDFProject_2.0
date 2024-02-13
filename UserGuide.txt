@@ -1,0 +1,51 @@
+# PDF Comparison and Modification Application - User Guide
+
+## Introduction:
+This user guide provides step-by-step instructions on how to use the PDF Comparison and Modification Application. The tool is designed for comparing and visualizing differences between two PDF documents, including text and image variations.
+
+## Configuration (Config.java):
+1. **WORD_BATCH_SIZE_FOR_COMPARISON:**
+   - Adjust this parameter in the `Config` class to control the batch size for word comparison. Higher values may result in faster calculations.
+
+2. **IMAGE_QUALITY:**
+   - Set the image quality in the `Config` class using the `ImageQuality` constant (e.g., `ImageQuality.LOW`). Adjust for a balance between processing speed and image clarity.
+
+3. **INPUT_PATH:**
+   - Define the path to the input Excel sheet containing PDF file details. Modify the `INPUT_PATH` in the `Config` class accordingly.
+
+4. **OUTPUT_IMAGES_PATH:**
+   - Specify the output directory path for storing comparison results (combined images). Update the `OUTPUT_IMAGES_PATH` in the `Config` class.
+
+5. **CHECK_IF_WORD_IS_RUNNING:**
+   - Optionally, enable or disable the check for Microsoft Word processes before conversion. Set `CHECK_IF_WORD_IS_RUNNING` in the `UserGuide` class.
+
+6. **Colors:**
+   - Customize color constants for different operations (e.g., additions, deletions, font changes) in the `Colors` class within the `Config`.
+
+## Input Data (Excel Sheet):
+1. **Structure:**
+   - The Excel sheet should contain the following columns: Path1, Path2, OutputFolder, Range1, Range2.
+   - Path1 and Path2 specify the paths of the PDFs to be compared.
+   - OutputFolder indicates the folder name for storing comparison results.
+   - Range1 and Range2 are optional columns defining page ranges (e.g., 1-5) for each PDF.
+
+2. **Excel Sheet Example:**
+
+   | Path1       | Path2       | OutputFolder | Range1 | Range2 |
+   |-------------|-------------|---------------|--------|--------|
+   | /pdf1/file1.pdf | /pdf2/file2.pdf | Result1 | 1-10   | 5-15   |
+   | /pdf1/file3.pdf | /pdf2/file4.pdf | Result2 | 3-8    | 10-20  |
+
+3. **Page Range Format:**
+   - Page ranges should be specified in the format: "start-end" (e.g., 1-10).
+   - Single pages can be specified without a range (e.g., 5).
+
+4. **Execution:**
+   - Run the main method in the `Launcher` class to initiate the comparison process for the specified PDFs.
+   - View the console output for the status of each comparison.
+
+5. **Output:**
+   - The combined images highlighting differences will be stored in the specified output folder for each set of PDFs.
+
+## Conclusion:
+Following these steps will enable users to effectively utilize the PDF Comparison and Modification Application for comprehensive PDF document analysis.
