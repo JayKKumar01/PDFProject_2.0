@@ -3,6 +3,7 @@ package pdfproject.utils;
 import com.documents4j.api.DocumentType;
 import com.documents4j.api.IConverter;
 import com.documents4j.job.LocalConverter;
+import pdfproject.Config;
 import pdfproject.Launcher;
 
 import java.io.*;
@@ -15,6 +16,21 @@ public class WordToPdfConverter {
         if (!inputWord.exists()) {
             return null;
         }
+
+        if (!Launcher.isInProgress) {
+            if (Config.UserGuide.CHECK_IF_WORD_IS_RUNNING) {
+                if (isWordRunning()) {
+                    System.out.println("Make sure to close MS Word!");
+                    return null;
+                }
+            } else {
+                if (isWordRunning()) {
+                    System.out.println("To save your MS Word work data, Can't Proceed as the MS Word is still Running");
+                    return null;
+                }
+            }
+        }
+        Launcher.isInProgress = true;
 
         System.out.println("Converting... : " + inputWord.getName());
 

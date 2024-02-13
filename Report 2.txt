@@ -10,7 +10,13 @@ This application provides a comprehensive solution for comparing and visualizing
 - It initializes the required components and orchestrates the overall flow of the application.
 - The `Launcher` class is responsible for interacting with the user, obtaining input parameters, and invoking subsequent steps.
 
----
+Handling Multiple Comparisons Using SheetUtil
+
+- The application utilizes `SheetUtil` to extract data from an Excel sheet, facilitating multiple PDF comparisons.
+- The extracted data includes information about PDF paths, output folders, and optional page ranges for both files.
+- The program iterates through the list of `DataModel` objects, each representing a set of PDFs for comparison.
+- For each `DataModel`, the `PDFProject` class is instantiated, and the comparison process is executed based on the provided parameters.
+- Temporary files created during the process are stored in a list for later cleanup.
 
 ### **Step 2: PDF Conversion (`WordToPdfConverter` Class):**
 - Before comparing PDFs, it is essential to convert any Word documents to PDF format.

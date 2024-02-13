@@ -3,7 +3,6 @@ package pdfproject;
 import pdfproject.models.DataModel;
 import pdfproject.utils.SheetUtil;
 
-import javax.xml.crypto.Data;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,71 +14,59 @@ public class Launcher {
 
     // List to store temporary files created during the execution of the program
     public static List<File> tempFiles = new ArrayList<>();
+    public static boolean isInProgress;
 
     /**
      * The main method that serves as the entry point for the program.
+     *
      * @param args Command line arguments (not used in this example).
      */
     public static void main(String[] args) {
 
+        // Retrieve data models from the Excel sheet
         List<DataModel> list = SheetUtil.getData();
-        for (DataModel data: list){
-            PDFProject pdfProject = new PDFProject(data.getPath1(),data.getPath2());
-            if (data.isRange1()){
-                pdfProject.setPageRangeForFile1(data.getStartPage1(),data.getEndPage1());
-            }
-            if (data.isRange2()){
-                pdfProject.setPageRangeForFile2(data.getStartPage2(),data.getEndPage2());
-            }
-            File outputFolder = new File(Config.OUTPUT_IMAGES_PATH);
-            outputFolder = new File(outputFolder,data.getOutputFolder());
-            pdfProject.setOutputPath(outputFolder.getAbsolutePath());
-            if (!outputFolder.exists()){
-                System.out.println("Couldn't create: "+outputFolder.getAbsolutePath());
-                continue;
-            }
-            if (pdfProject.compare()){
-                System.out.println(data.getOutputFolder()+": Comparison Done!");
-            }else {
-                System.out.println(data.getOutputFolder()+": Something went wrong!");
-            }
 
-        }
-
-
-        for (File f : tempFiles) {
-            // Uncomment the next line if you want to print the absolute path of deleted files
-            // System.out.println(f.getAbsolutePath());
-
-            // Deleting the file
-            if (f.delete()) {
-                // Uncomment the next line if you want to print the name of deleted files
-                // System.out.println(f.getName() + " Deleted!");
-            }
-        }
-
-        boolean x = true;
-        if (x){
+        // Check if the data is valid
+        if (list == null) {
+            System.out.println("Wrong Input Data");
             return;
         }
 
-        // Paths to the DOCX files to be compared
-        String pdf1 = "E:/Sample/new/1.docx";
-        String pdf2 = "E:/Sample/new/2.docx";
+        // Iterate through the list of DataModel objects
+        for (DataModel data : list) {
+            // Create an instance of PDFProject with paths from DataModel
+            PDFProject pdfProject = new PDFProject(data.getPath1(), data.getPath2());
 
-        // Creating an instance of PDFProject with the provided DOCX file paths
-        PDFProject pdfProject = new PDFProject(pdf1, pdf2);
+            // Set page range for the first file if specified in DataModel
+            if (data.isRange1()) {
+                pdfProject.setPageRangeForFile1(data.getStartPage1(), data.getEndPage1());
+            }
 
-        // Setting a specific page range for the second file (optional)
-        pdfProject.setPageRangeForFile2(1, 2);
+            // Set page range for the second file if specified in DataModel
+            if (data.isRange2()) {
+                pdfProject.setPageRangeForFile2(data.getStartPage2(), data.getEndPage2());
+            }
 
-        // Initiating the comparison process
-        pdfProject.compare();
+            // Create the output folder based on the configuration
+            File outputFolder = new File(Config.OUTPUT_IMAGES_PATH);
+            outputFolder = new File(outputFolder, data.getOutputFolder());
+            pdfProject.setOutputPath(outputFolder.getAbsolutePath());
 
-        // Displaying a message to indicate that the process is completed
-        System.out.println("Comparison done.");
+            // Check if the output folder exists, otherwise skip the current iteration
+            if (!outputFolder.exists()) {
+                System.out.println("Couldn't create: " + outputFolder.getAbsolutePath());
+                continue;
+            }
 
-        // Deleting temporary files created during the process
+            // Perform the PDF comparison
+            if (pdfProject.compare()) {
+                System.out.println(data.getOutputFolder() + ": Comparison Done!");
+            } else {
+                System.out.println(data.getOutputFolder() + ": Something went wrong!");
+            }
+        }
+
+        // Clean up temporary files
         for (File f : tempFiles) {
             // Uncomment the next line if you want to print the absolute path of deleted files
             // System.out.println(f.getAbsolutePath());
