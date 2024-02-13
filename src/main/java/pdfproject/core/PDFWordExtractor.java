@@ -103,7 +103,9 @@ public class PDFWordExtractor extends PDFTextStripper {
                 wordInfo.setFinalPageNumber(pageNum);
                 PDColor color = getGraphicsState().getNonStrokingColor();
                 wordInfo.setColor(color);
-                wordList.add(wordInfo);
+                if(wordInfo.getFontSize() > 1){
+                   wordList.add(wordInfo);
+                }
             }
             i += word.length() + 1;
         }
