@@ -7,6 +7,8 @@ import java.awt.*;
 public class Config {
     public static final int WORD_BATCH_SIZE_FOR_COMPARISON = 20; // Adjust this to get faster calculation
     public static final int IMAGE_QUALITY = ImageQuality.LOW; // Adjust this to get faster calculation
+    public static final String INPUT_PATH = System.getProperty("user.dir")+"\\src\\main\\java\\files\\Data.xlsx";
+    public static final String OUTPUT_IMAGES_PATH = "E:\\Sample\\new\\img";
 
     /**
      * Class containing color constants for different operations.

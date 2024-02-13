@@ -1,5 +1,7 @@
 package pdfproject;
 
+import org.apache.pdfbox.io.MemoryUsageSetting;
+import org.apache.pdfbox.pdmodel.PDDocument;
 import pdfproject.core.StringDiff;
 import pdfproject.enums.Info;
 import pdfproject.enums.Info.Constants;
@@ -46,14 +48,15 @@ public class PDFProject {
     /**
      * Initiates the comparison process, identifies differences, and applies modifications.
      */
-    public void compare() {
+    public boolean compare() {
         if (!isValid()) {
-            return;
+            System.out.println("Input Data is not Valid!");
+            return false;
         }
 
         // Extracting WordInfo lists for each PDF and finding differences
-        List<WordInfo> list1 = PDFUtil.WordList(pdf1, new ArrayList<>());
-        List<WordInfo> list2 = PDFUtil.WordList(pdf2, new ArrayList<>());
+        List<WordInfo> list1 = PDFUtil.WordList(pdf1, pagesPDF1);
+        List<WordInfo> list2 = PDFUtil.WordList(pdf2, pagesPDF2);
         List<WordInfo> list = StringDiff.List(list1, list2);
 
         // Iterating through the differences and printing relevant information
@@ -65,9 +68,9 @@ public class PDFProject {
                 itr.remove();
                 continue;
             }
-            System.out.println(wordInfo.getWord() + ": " + wordInfo.getInfo());
+            //System.out.println(wordInfo.getWord() + ": " + wordInfo.getInfo());
         }
-        System.out.println(list1.size() + " " + list2.size() + ": " + list.size());
+        //System.out.println(list1.size() + " " + list2.size() + ": " + list.size());
 
         // Modifying the PDFs based on identified differences
         ModifyPDF modifyPDF = new ModifyPDF(pdf1, pdf2, list);
@@ -86,8 +89,10 @@ public class PDFProject {
             // Converting modified PDFs to images for visual comparison
             PDFToImageConverter.createImage(file1, file2, file3, outputPath, pagesPDF1, pagesPDF2);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            return false;
         }
+        return true;
     }
 
     /**
@@ -96,8 +101,35 @@ public class PDFProject {
      * @return True if valid, false otherwise.
      */
     private boolean isValid() {
+        if (pdf1 == null || pdf2 == null){
+            return false;
+        }
+
+        int pageLenPdf1 = getPagesCount(pdf1);
+        int pageLenPdf2 = getPagesCount(pdf2);
+        for (int i: pagesPDF1){
+            if (i < 1 || i > pageLenPdf1){
+                return false;
+            }
+        }
+        for (int i: pagesPDF2){
+            if (i < 1 || i > pageLenPdf2){
+                return false;
+            }
+        }
         // Additional validation logic can be added here if needed
         return true;
+    }
+
+    private int getPagesCount(File pdf) {
+        try {
+            PDDocument doc = PDDocument.load(pdf, MemoryUsageSetting.setupTempFileOnly());
+            int page = doc.getNumberOfPages();
+            doc.close();
+            return page;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

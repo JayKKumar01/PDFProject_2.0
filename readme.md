@@ -1,7 +1,3 @@
-Certainly! Below is the README file content summarizing the provided code:
-
----
-
 # PDF Processing Application
 
 This repository contains a Java application for processing PDF documents, including features such as Word-to-PDF conversion, text extraction, and image generation.
