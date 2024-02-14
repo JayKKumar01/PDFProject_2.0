@@ -1,11 +1,9 @@
 package pdfproject.core;
 
-import org.apache.poi.sl.draw.geom.GuideIf;
-import pdfproject.enums.Info.Operation;
+import pdfproject.enums.Constants.Operation;
 import pdfproject.models.WordInfo;
 import pdfproject.utils.Base;
 
-import java.awt.datatransfer.FlavorListener;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -1,6 +1,6 @@
 package pdfproject;
 
-import pdfproject.enums.Info.*;
+import pdfproject.enums.Constants.*;
 
 import java.awt.*;
 

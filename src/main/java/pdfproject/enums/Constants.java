@@ -3,7 +3,7 @@ package pdfproject.enums;
 /**
  * Enumerations and constants related to PDF project information.
  */
-public class Info {
+public class Constants {
 
     /**
      * Enumeration for different operations related to WordInfo.
@@ -13,7 +13,7 @@ public class Info {
     }
 
     /**
-     * Constants related to image quality.
+     * FileFormat related to image quality.
      */
     public static class ImageQuality {
         public static final int LOW = 100;
@@ -22,9 +22,9 @@ public class Info {
     }
 
     /**
-     * Constants related to file formats and directories.
+     * FileFormat related to file formats and directories.
      */
-    public static class Constants {
+    public static class FileFormat {
         public static final String PDF = ".pdf";
         public static final String DOCX = ".docx";
         public static final String DOC = ".doc";

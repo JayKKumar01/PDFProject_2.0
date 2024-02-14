@@ -3,8 +3,8 @@ package pdfproject;
 import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import pdfproject.core.StringDiff;
-import pdfproject.enums.Info;
-import pdfproject.enums.Info.Constants;
+import pdfproject.enums.Constants;
+import pdfproject.enums.Constants.FileFormat;
 import pdfproject.imageutils.PDFToImageConverter;
 import pdfproject.models.WordInfo;
 import pdfproject.modifications.ModifyPDF;
@@ -65,8 +65,8 @@ public class PDFProject {
         Iterator<WordInfo> itr = list.iterator();
         while (itr.hasNext()) {
             WordInfo wordInfo = itr.next();
-            List<Info.Operation> typeList = wordInfo.getTypeList();
-            if (typeList.get(0) == Info.Operation.EQUAL) {
+            List<Constants.Operation> typeList = wordInfo.getTypeList();
+            if (typeList.get(0) == Constants.Operation.EQUAL) {
                 itr.remove();
                 continue;
             }
@@ -176,9 +176,9 @@ public class PDFProject {
         }
 
         String name = file.getName().toLowerCase();
-        if (name.endsWith(Constants.PDF)) {
+        if (name.endsWith(FileFormat.PDF)) {
             return file;
-        } else if (name.endsWith(Constants.DOCX) || name.endsWith(Constants.DOC)) {
+        } else if (name.endsWith(FileFormat.DOCX) || name.endsWith(Constants.FileFormat.DOC)) {
             File pdfFile = WordToPdfConverter.toPDF(path);
             if (pdfFile == null) {
                 throw new RuntimeException("Failed to convert Word document to PDF: " + path);

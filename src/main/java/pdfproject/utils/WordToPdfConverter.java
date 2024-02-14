@@ -9,7 +9,7 @@ import pdfproject.Launcher;
 import java.io.*;
 import java.util.concurrent.*;
 
-import static pdfproject.enums.Info.Constants.TEMP_DIR;
+import static pdfproject.enums.Constants.FileFormat.TEMP_DIR;
 
 public class WordToPdfConverter {
     private static final int MAX_RETRIES = 2;

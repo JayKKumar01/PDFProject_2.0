@@ -3,7 +3,7 @@ package pdfproject.models;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.graphics.color.PDColor;
 import org.apache.pdfbox.text.TextPosition;
-import pdfproject.enums.Info.Operation;
+import pdfproject.enums.Constants.Operation;
 
 import java.util.ArrayList;
 import java.util.List;

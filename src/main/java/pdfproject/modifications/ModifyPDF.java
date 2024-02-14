@@ -5,9 +5,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.text.TextPosition;
-import pdfproject.Launcher;
-import pdfproject.enums.Info.Operation;
-import pdfproject.imageutils.PDFToImageConverter;
+import pdfproject.enums.Constants.Operation;
 import pdfproject.models.WordInfo;
 
 import java.awt.*;
@@ -18,7 +16,7 @@ import java.util.List;
 import pdfproject.Config.Colors;
 import pdfproject.utils.InfoDocUtil;
 
-import static pdfproject.enums.Info.Constants.TEMP_DIR;
+import static pdfproject.enums.Constants.FileFormat.TEMP_DIR;
 
 /**
  * Class for modifying PDF documents based on identified differences.

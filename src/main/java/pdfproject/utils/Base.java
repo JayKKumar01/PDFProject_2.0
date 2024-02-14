@@ -1,7 +1,11 @@
 package pdfproject.utils;
 
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.xssf.usermodel.IndexedColorMap;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+import pdfproject.Config;
 import pdfproject.Config.Colors;
-import pdfproject.enums.Info;
+import pdfproject.enums.Constants;
 import pdfproject.models.WordInfo;
 
 import java.awt.*;
@@ -18,9 +22,9 @@ public class Base {
      * @param typeList List of operations.
      * @return Color corresponding to the operations.
      */
-    public static Color getColorFromOperations(List<Info.Operation> typeList) {
+    public static Color getColorFromOperations(List<Constants.Operation> typeList) {
         if (typeList.size() == 1) {
-            Info.Operation operation = typeList.get(0);
+            Constants.Operation operation = typeList.get(0);
             switch (operation) {
                 case FONT:
                     return Colors.FONT_NAME_OPERATION_COLOR;
@@ -72,14 +76,14 @@ public class Base {
         String font2 = wordInfo2.getFont();
 
         if (!font1.equals(font2)){
-            wordInfo2.addType(Info.Operation.FONT);
+            wordInfo2.addType(Constants.Operation.FONT);
             isComma = true;
             builder.append(font1).append(divider).append(font2);
         }
         int size1 = wordInfo1.getFontSize();
         int size2 = wordInfo2.getFontSize();
         if (size1 != size2){
-            wordInfo2.addType(Info.Operation.SIZE);
+            wordInfo2.addType(Constants.Operation.SIZE);
             if (isComma){
                 builder.append(",");
             }
@@ -89,7 +93,7 @@ public class Base {
         String style1 = wordInfo1.getFontStyle();
         String style2 = wordInfo2.getFontStyle();
         if (!style1.equals(style2)){
-            wordInfo2.addType(Info.Operation.STYLE);
+            wordInfo2.addType(Constants.Operation.STYLE);
             if (isComma){
                 builder.append(",");
             }
@@ -106,7 +110,25 @@ public class Base {
      * @param wordInfo  WordInfo object.
      * @return Information string.
      */
-    public static String getInfo(Info.Operation operation, WordInfo wordInfo) {
+    public static String getInfo(Constants.Operation operation, WordInfo wordInfo) {
         return "["+operation.name()+": (Font: "+wordInfo.getFont()+", Size: "+wordInfo.getFontSize()+", Style: "+wordInfo.getFontStyle()+")]";
     }
+
+    public static IndexedColors getIndexedColor(Color color) {
+        if (color.equals(Colors.DELETED_OPERATION_COLOR)) {
+            return IndexedColors.RED;
+        } else if (color.equals(Colors.ADDED_OPERATION_COLOR)) {
+            return IndexedColors.GREEN;
+        } else if (color.equals(Colors.FONT_NAME_OPERATION_COLOR)) {
+            return IndexedColors.PINK;
+        } else if (color.equals(Colors.FONT_SIZE_OPERATION_COLOR)) {
+            return IndexedColors.BLUE;
+        } else if (color.equals(Colors.FONT_STYLE_OPERATION_COLOR)) {
+            return IndexedColors.LIGHT_BLUE;
+        }
+        return IndexedColors.BLACK;
+    }
+
+
+
 }

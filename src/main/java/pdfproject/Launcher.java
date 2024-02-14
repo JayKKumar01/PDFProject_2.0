@@ -1,13 +1,17 @@
 package pdfproject;
 
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.IndexedColorMap;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import pdfproject.enums.Info;
 import pdfproject.models.DataModel;
+import pdfproject.utils.Base;
 import pdfproject.utils.InfoDocUtil;
 import pdfproject.utils.SheetUtil;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -17,7 +21,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
-import static pdfproject.enums.Info.Constants.TEMP_DIR;
+import static pdfproject.enums.Constants.FileFormat.TEMP_DIR;
 
 /**
  * The main class to launch the PDFProject and demonstrate its functionality.
@@ -109,7 +113,7 @@ public class Launcher {
         File excelFile = new File(excelFilePath);
         File tempFile = new File(new File(TEMP_DIR),System.currentTimeMillis()+".tmp");  // Temporary file path
 
-        Workbook workbook = null;
+        XSSFWorkbook workbook = null;
         FileOutputStream outputStream = null;
 
         try {
@@ -120,6 +124,10 @@ public class Launcher {
             Sheet sheet = workbook.createSheet("Sheet" + (sheetIndex + 1));
 
             int rowIndex = findNextAvailableRow(sheet);
+
+
+
+            IndexedColorMap colorMap = workbook.getStylesSource().getIndexedColors();
 
             // Iterate through each inner list of masterList (representing each page)
             for (int i = 0; i < masterList.size(); i++) {
@@ -137,8 +145,15 @@ public class Launcher {
                     cellSentence.setCellValue(info.getSentence());
 
                     Color color = info.getColor();
+
                     Cell cellInfo = row.createCell(cellIndex);
                     cellInfo.setCellValue(info.getInfo());
+
+                    CellStyle style = workbook.createCellStyle();
+                    XSSFFont font = workbook.createFont();
+                    font.setColor(Base.getIndexedColor(color).getIndex());
+                    style.setFont(font);
+                    cellInfo.setCellStyle(style);
                 }
             }
 
