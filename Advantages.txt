@@ -28,6 +28,6 @@
    - The ability to combine images from different PDFs provides a holistic view of changes, encompassing both textual and graphical modifications. This comprehensive analysis sets our tool apart from conventional text-centric document comparison tools.
 
 10. **Integration of External Libraries:**
-    - The tool leverages external libraries such as `pdfbox`, `imgdiff`, and `documents4j`. This integration allows for robust functionality and ensures compatibility with industry-standard document formats.
+    - The tool leverages external libraries such as `pdfbox` and `documents4j`. This integration allows for robust functionality and ensures compatibility with industry-standard document formats.
 
 In summary, this PDF comparison tool offers an array of features that go beyond the capabilities of traditional document comparison tools. The integration of text and image comparison, along with customizable parameters, enhances the tool's versatility and effectiveness in identifying and visualizing changes within PDF documents.
