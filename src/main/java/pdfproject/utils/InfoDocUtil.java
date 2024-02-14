@@ -52,7 +52,7 @@ public class InfoDocUtil {
 
         // Iterate through WordInfo objects and populate the map
         for (WordInfo wordInfo : list) {
-            int pageNumber = wordInfo.getPageNumber();
+            int pageNumber = wordInfo.getFinalPageNumber();
             Info info = new Info(wordInfo.getWord(), wordInfo.getInfo(), wordInfo.getPDFont(), Base.getColorFromOperations(wordInfo.getTypeList()));
             info.setPositionY(wordInfo.getPosition());
 
