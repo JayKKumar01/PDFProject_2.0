@@ -9,8 +9,9 @@ import pdfproject.Launcher;
 import java.io.*;
 import java.util.concurrent.*;
 
+import static pdfproject.enums.Info.Constants.TEMP_DIR;
+
 public class WordToPdfConverter {
-    public static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
     private static final int MAX_RETRIES = 2;
     private static final int RETRY_SLEEP_MILLIS = 1000;
     private static final int TIMEOUT_SECONDS = 20;

@@ -22,11 +22,13 @@ public class Info {
     }
 
     /**
-     * Constants related to file formats.
+     * Constants related to file formats and directories.
      */
     public static class Constants {
         public static final String PDF = ".pdf";
         public static final String DOCX = ".docx";
         public static final String DOC = ".doc";
+
+        public static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
     }
 }

@@ -8,6 +8,7 @@ import pdfproject.enums.Info.Constants;
 import pdfproject.imageutils.PDFToImageConverter;
 import pdfproject.models.WordInfo;
 import pdfproject.modifications.ModifyPDF;
+import pdfproject.utils.InfoDocUtil;
 import pdfproject.utils.PDFUtil;
 import pdfproject.utils.WordToPdfConverter;
 
@@ -26,12 +27,13 @@ public class PDFProject {
     private String outputPath = System.getProperty("user.home") + File.separator + "Downloads" + File.separator + "PDFProject";
 
     // Files to be compared
-    private File pdf1;
-    private File pdf2;
+    private final File pdf1;
+    private final File pdf2;
 
     // Lists to store selected pages for each PDF
-    List<Integer> pagesPDF1 = new ArrayList<>();
-    List<Integer> pagesPDF2 = new ArrayList<>();
+    private final List<Integer> pagesPDF1 = new ArrayList<>();
+    private final List<Integer> pagesPDF2 = new ArrayList<>();
+    private List<List<InfoDocUtil.Info>> masterList;
 
     /**
      * Constructor to initialize PDFProject with two PDF file paths.
@@ -75,6 +77,7 @@ public class PDFProject {
         // Modifying the PDFs based on identified differences
         ModifyPDF modifyPDF = new ModifyPDF(pdf1, pdf2, list);
         modifyPDF.updatePDFs();
+        masterList = modifyPDF.getMasterList();
 
         // Obtaining modified files and adding them to the temporary files list
         List<File> files = modifyPDF.getFiles();
@@ -140,6 +143,10 @@ public class PDFProject {
     public void setOutputPath(String outputPath) {
         this.outputPath = outputPath;
         createOutputFolder();
+    }
+
+    public List<List<InfoDocUtil.Info>> getMasterList() {
+        return masterList;
     }
 
     /**

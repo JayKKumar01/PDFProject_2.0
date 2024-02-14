@@ -18,7 +18,7 @@ import java.util.List;
 import pdfproject.Config.Colors;
 import pdfproject.utils.InfoDocUtil;
 
-import static pdfproject.utils.WordToPdfConverter.TEMP_DIR;
+import static pdfproject.enums.Info.Constants.TEMP_DIR;
 
 /**
  * Class for modifying PDF documents based on identified differences.
@@ -29,6 +29,8 @@ public class ModifyPDF {
     private PDDocument doc2;
     private List<WordInfo> list;
     private List<File> files = new ArrayList<>();
+    private List<List<InfoDocUtil.Info>> masterList;
+
 
     /**
      * Constructor to initialize the ModifyPDF object with two PDF documents and a list of WordInfo differences.
@@ -70,7 +72,7 @@ public class ModifyPDF {
         String path1 = TEMP_DIR + "/old.pdf";
         String path2 = TEMP_DIR + "/new.pdf";
         String path3 = TEMP_DIR + "/edited.pdf";
-        InfoDocUtil.setDoc(list, path3);
+        masterList = InfoDocUtil.setDoc(list, path3);
         decrypt(doc1);
         decrypt(doc2);
 
@@ -100,6 +102,10 @@ public class ModifyPDF {
      */
     public List<File> getFiles() {
         return files;
+    }
+
+    public List<List<InfoDocUtil.Info>> getMasterList() {
+        return masterList;
     }
 
     /**

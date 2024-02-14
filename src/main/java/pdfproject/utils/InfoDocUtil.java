@@ -7,8 +7,6 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.util.Matrix;
-import pdfproject.Config.Colors;
-import pdfproject.enums.Info;
 import pdfproject.models.WordInfo;
 
 import java.awt.*;
@@ -27,14 +25,17 @@ public class InfoDocUtil {
      *
      * @param list List of WordInfo objects containing extracted information.
      * @param path Path to save the generated PDF document.
+     * @return
      */
-    public static void setDoc(List<WordInfo> list, String path) {
+    public static List<List<Info>> setDoc(List<WordInfo> list, String path) {
         try {
             List<List<Info>> masterList = toMasterList(list);
             addText(masterList, path);
+            return masterList;
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return null;
     }
 
     /**
@@ -134,7 +135,7 @@ public class InfoDocUtil {
     /**
      * Inner class representing information to be included in the PDF document.
      */
-    private static class Info {
+    public static class Info {
         private String sentence;
         private String info;
         private PDFont font;
