@@ -16,9 +16,8 @@ import java.util.List;
 /**
  * Extracts words and related information from a PDF document.
  */
-public class PDFWordExtractor extends PDFTextStripper {
+public class PDFWordExtractor3 extends PDFTextStripper {
     private final List<WordInfo> wordList = new ArrayList<>();
-    private final List<WordInfo> wordList1 = new ArrayList<>();
     private int minPageNum = Integer.MAX_VALUE;
     private int maxPageNum = Integer.MIN_VALUE;
     private boolean modifyPageNum;
@@ -30,7 +29,6 @@ public class PDFWordExtractor extends PDFTextStripper {
     private int prevPageNum;
     private TextPosition prevText;
     private PDColor curColor;
-    private boolean processDone;
 
     /**
      * Constructs a PDFWordExtractor for the specified file and pages.
@@ -39,7 +37,7 @@ public class PDFWordExtractor extends PDFTextStripper {
      * @param pages The list of page numbers to extract words from.
      * @throws IOException If an I/O error occurs while loading the PDF file.
      */
-    public PDFWordExtractor(File file, List<Integer> pages) throws IOException {
+    public PDFWordExtractor3(File file, List<Integer> pages) throws IOException {
         this.document = PDDocument.load(file, MemoryUsageSetting.setupTempFileOnly());
 
         // Adding color-related operators for text extraction
@@ -53,6 +51,7 @@ public class PDFWordExtractor extends PDFTextStripper {
 
         if (pages.isEmpty()) {
             String text = this.getText(document);
+            System.out.println(text);
         } else {
             modifyPageNum = true;
             for (int page : pages) {
@@ -60,30 +59,6 @@ public class PDFWordExtractor extends PDFTextStripper {
                 this.setEndPage(page);
                 this.getText(document);
             }
-        }
-    }
-
-
-    @Override
-    protected void writeString(String string, List<TextPosition> texts) {
-
-        for (int i=0; i<texts.size();i++){
-            TextPosition curText = texts.get(i);
-
-            if (!textPositions.isEmpty()){
-                TextPosition prevText = textPositions.get(textPositions.size()-1);
-                float xGap = curText.getX() - (prevText.getX() + prevText.getWidth());
-                float yGap = curText.getY() - prevText.getY();
-                if (xGap > 0 || yGap > 0){
-                    System.out.print(" ");
-                }
-            }
-            String ch = curText.getUnicode();
-            if (ch.trim().isEmpty()){
-                continue;
-            }
-            System.out.print(ch);
-            textPositions.add(curText);
         }
     }
 
@@ -99,6 +74,58 @@ public class PDFWordExtractor extends PDFTextStripper {
             e.printStackTrace();
         }
         return wordList;
+    }
+
+    // Uncomment the following method if you want to process each TextPosition individually
+    // and store corresponding colors in colorList.
+
+
+    @Override
+    protected void processTextPosition(TextPosition text) {
+        super.processTextPosition(text);
+
+
+        int curPageNum = this.getCurrentPageNo();
+
+
+        if (prevText != null && (int) prevText.getY() < (int) text.getY()){
+            line++;
+        }
+        if (prevPageNum != curPageNum){
+            line = 1;
+        }
+        prevText = text;
+        prevPageNum = curPageNum;
+
+        String ch = text.getUnicode();
+        System.out.println(ch);
+        if (ch.trim().isEmpty()){
+            if (!wordBuilder.toString().trim().isEmpty() && !textPositions.isEmpty()){
+                WordInfo wordInfo = new WordInfo(wordBuilder.toString(),textPositions);
+                wordInfo.setPageNumber(curPageNum);
+                int pageNum = modifyPageNum ? curPageNum - minPageNum + 1 : curPageNum;
+                wordInfo.setFinalPageNumber(pageNum);
+                wordInfo.setLine(line);
+                wordInfo.setColor(curColor);
+                if(wordInfo.getFontSize() > 1){
+                    wordList.add(wordInfo);
+                }
+            }
+            wordBuilder = new StringBuilder();
+            textPositions = new ArrayList<>();
+            curColor = null;
+
+        }else {
+            wordBuilder.append(ch);
+            textPositions.add(text);
+            if (curColor == null){
+                curColor = getGraphicsState().getNonStrokingColor();
+            }
+        }
+    }
+    @Override
+    protected void writeString(String string, List<TextPosition> textPositions) {
+        System.out.println(string);
     }
 
 
