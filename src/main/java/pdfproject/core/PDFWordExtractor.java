@@ -72,22 +72,24 @@ public class PDFWordExtractor extends PDFTextStripper {
         for (int i=0; i<texts.size();i++){
             TextPosition curText = texts.get(i);
 
-            if (!textPositions.isEmpty()){
-                TextPosition prevText = textPositions.get(textPositions.size()-1);
+
+            if (prevText != null){
                 float xGap = curText.getX() - (prevText.getX() + prevText.getWidth());
                 float yGap = curText.getY() - prevText.getY();
+                float space = (float) (0.8 * curText.getWidthOfSpace());
                 if (yGap > 0){
                     System.out.println();
-                }else if (xGap > 2){
+                }else if (xGap > space ){
                     System.out.print(" ");
                 }
             }
+
             String ch = curText.getUnicode();
             if (ch.trim().isEmpty()){
                 continue;
             }
+            prevText = curText;
             System.out.print(ch);
-            textPositions.add(curText);
         }
     }
 
