@@ -19,6 +19,7 @@ public class WordInfo {
     private List<TextPosition> positions;
     private int pageNumber;
     private int finalPageNumber = -1;
+    private int line = -1;
     private PDColor color;
     private boolean shouldCheck = true;
 
@@ -39,6 +40,13 @@ public class WordInfo {
 
     // Accessors and Mutators
 
+
+    public int getLine() {
+        return line;
+    }
+    public void setLine(int line){
+        this.line = line;
+    }
 
     public int getFinalPageNumber() {
         return finalPageNumber;

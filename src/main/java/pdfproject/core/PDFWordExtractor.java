@@ -26,6 +26,8 @@ public class PDFWordExtractor extends PDFTextStripper {
     private boolean modifyPageNum;
 
     private PDDocument document;
+    private int line = 0;
+    private int previousPageNum = 0;
 
     /**
      * Constructs a PDFWordExtractor for the specified file and pages.
@@ -44,9 +46,12 @@ public class PDFWordExtractor extends PDFTextStripper {
             maxPageNum = Math.max(maxPageNum, pageNum);
             minPageNum = Math.min(minPageNum, pageNum);
         }
+        this.setSortByPosition(true);
 
         if (pages.isEmpty()) {
-            this.getText(document);
+            String text = this.getText(document);
+            String[] lines = text.split("\\n");
+            System.out.println("Lines: "+lines.length);
         } else {
             modifyPageNum = true;
             for (int page : pages) {
@@ -88,16 +93,27 @@ public class PDFWordExtractor extends PDFTextStripper {
      */
     @Override
     protected void writeString(String string, List<TextPosition> textPositions) {
+        // if does not ends with \n will combine next word using process
+        line++;
         String[] words = string.split(getWordSeparator());
         int i = 0;
 
         for (String word : words) {
             if (!word.isEmpty()) {
                 List<TextPosition> positions = new ArrayList<>();
-                for (int j = i; j < i + word.length(); j++) {
+                int len = i+word.length();
+                for (int j = i; j < len; j++) {
                     positions.add(textPositions.get(j));
                 }
                 WordInfo wordInfo = new WordInfo(word, positions);
+
+
+                int curPageNum = this.getCurrentPageNo();
+                if (previousPageNum != 0 && previousPageNum != curPageNum){
+                    line = 1;
+                }
+                previousPageNum = curPageNum;
+                wordInfo.setLine(line);
                 wordInfo.setPageNumber(this.getCurrentPageNo());
                 int pageNum = modifyPageNum ? this.getCurrentPageNo() - minPageNum + 1 : this.getCurrentPageNo();
                 wordInfo.setFinalPageNumber(pageNum);
@@ -106,6 +122,12 @@ public class PDFWordExtractor extends PDFTextStripper {
                 if(wordInfo.getFontSize() > 1){
                    wordList.add(wordInfo);
                 }
+            }else {
+                int curPageNum = this.getCurrentPageNo();
+                if (previousPageNum != 0 && previousPageNum != curPageNum){
+                    line = 1;
+                }
+                previousPageNum = curPageNum;
             }
             i += word.length() + 1;
         }

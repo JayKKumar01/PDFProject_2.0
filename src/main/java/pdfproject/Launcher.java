@@ -145,8 +145,9 @@ public class Launcher {
                     }else {
                         row = sheet.createRow(rowIndex++);
                     }
-
                     int cellIndex = 1;
+                    Cell cellLine = row.createCell(cellIndex++);
+                    cellLine.setCellValue(info.getLine());
 
                     Cell cellSentence = row.createCell(cellIndex++);
                     cellSentence.setCellValue(info.getSentence());
@@ -167,6 +168,7 @@ public class Launcher {
             sheet.autoSizeColumn(0);
             sheet.autoSizeColumn(1);
             sheet.autoSizeColumn(2);
+            sheet.autoSizeColumn(3);
 
             workbook.write(outputStream);
             workbook.close();

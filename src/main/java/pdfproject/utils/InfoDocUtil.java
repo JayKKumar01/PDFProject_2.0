@@ -56,6 +56,7 @@ public class InfoDocUtil {
             int pageNumber = wordInfo.getFinalPageNumber();
             Info info = new Info(wordInfo.getWord(), wordInfo.getInfo(), wordInfo.getPDFont(), Base.getColorFromOperations(wordInfo.getTypeList()));
             info.setPositionY(wordInfo.getPosition());
+            info.setLine(wordInfo.getLine());
 
             // If the page number is not already in the map, create a new list
             // Otherwise, add the info to the existing list for that page
@@ -141,12 +142,21 @@ public class InfoDocUtil {
         private PDFont font;
         private Color color;
         private int positionY;
+        private int line;
 
         public Info(String sentence, String info, PDFont font, Color color) {
             this.sentence = sentence;
             this.info = info;
             this.font = font;
             this.color = color;
+        }
+
+        public int getLine() {
+            return line;
+        }
+
+        public void setLine(int line) {
+            this.line = line;
         }
 
         public int getPositionY() {
