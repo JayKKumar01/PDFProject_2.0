@@ -3,6 +3,7 @@ package pdfproject.core;
 import org.apache.pdfbox.contentstream.operator.color.*;
 import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.graphics.color.PDColor;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.text.TextPosition;
 import pdfproject.models.WordInfo;
@@ -15,18 +16,19 @@ import java.util.List;
 /**
  * Extracts words and related information from a PDF document.
  */
-public class PDFWordExtractor extends PDFTextStripper {
+public class PDFWordExtractor0 extends PDFTextStripper {
     private final List<WordInfo> wordList = new ArrayList<>();
+    private final List<PDColor> colorList = new ArrayList<>();
+
+    private int colorIndex = 0;
     private int minPageNum = Integer.MAX_VALUE;
     private int maxPageNum = Integer.MIN_VALUE;
     private boolean modifyPageNum;
 
     private PDDocument document;
-    private int line = 1;
+    private int line = 0;
+    private int previousPageNum = 0;
     private StringBuilder wordBuilder = new StringBuilder();
-    List<TextPosition> textPositions = new ArrayList<>();
-    private int prevPageNum;
-    private TextPosition prevText;
 
     /**
      * Constructs a PDFWordExtractor for the specified file and pages.
@@ -35,7 +37,7 @@ public class PDFWordExtractor extends PDFTextStripper {
      * @param pages The list of page numbers to extract words from.
      * @throws IOException If an I/O error occurs while loading the PDF file.
      */
-    public PDFWordExtractor(File file, List<Integer> pages) throws IOException {
+    public PDFWordExtractor0(File file, List<Integer> pages) throws IOException {
         this.document = PDDocument.load(file, MemoryUsageSetting.setupTempFileOnly());
 
         // Adding color-related operators for text extraction
@@ -48,7 +50,9 @@ public class PDFWordExtractor extends PDFTextStripper {
         this.setSortByPosition(true);
 
         if (pages.isEmpty()) {
-            this.getText(document);
+            String text = this.getText(document);
+            String[] lines = text.split("\\n");
+            System.out.println("Lines: "+lines.length);
         } else {
             modifyPageNum = true;
             for (int page : pages) {
@@ -76,43 +80,53 @@ public class PDFWordExtractor extends PDFTextStripper {
     // Uncomment the following method if you want to process each TextPosition individually
     // and store corresponding colors in colorList.
 
+//    @Override
+//    protected void processTextPosition(TextPosition text) {
+//        super.processTextPosition(text);
+//    }
 
+
+    /**
+     * Overrides the writeString method to process each word and related information.
+     *
+     * @param string         The string to be processed.
+     * @param textPositions  The list of TextPosition objects representing positions of the string in the PDF.
+     */
     @Override
-    protected void processTextPosition(TextPosition text) {
-        super.processTextPosition(text);
-
+    protected void writeString(String string, List<TextPosition> textPositions) {
+        // if does not ends with \n will combine next word using process
+        line++;
         int curPageNum = this.getCurrentPageNo();
-
-
-        if (prevText != null && (int) prevText.getY() < (int) text.getY()){
-            line++;
-        }
-        if (prevPageNum != curPageNum){
+        if (previousPageNum != 0 && previousPageNum != curPageNum){
             line = 1;
         }
-        prevText = text;
-        prevPageNum = curPageNum;
+        previousPageNum = curPageNum;
 
-        String ch = text.getUnicode();
-        if (ch.trim().isEmpty()){
-            if (!wordBuilder.toString().trim().isEmpty() && !textPositions.isEmpty()){
-                WordInfo wordInfo = new WordInfo(wordBuilder.toString(),textPositions);
-                wordInfo.setPageNumber(curPageNum);
-                int pageNum = modifyPageNum ? curPageNum - minPageNum + 1 : curPageNum;
-                wordInfo.setFinalPageNumber(pageNum);
+        String[] words = string.split(getWordSeparator());
+        int i = 0;
+
+        for (String word : words) {
+            if (!word.isEmpty()) {
+                List<TextPosition> positions = new ArrayList<>();
+                int len = i+word.length();
+                for (int j = i; j < len; j++) {
+                    positions.add(textPositions.get(j));
+                }
+                WordInfo wordInfo = new WordInfo(word, positions);
+
                 wordInfo.setLine(line);
+                wordInfo.setPageNumber(this.getCurrentPageNo());
+                int pageNum = modifyPageNum ? this.getCurrentPageNo() - minPageNum + 1 : this.getCurrentPageNo();
+                wordInfo.setFinalPageNumber(pageNum);
+                PDColor color = getGraphicsState().getNonStrokingColor();
+                wordInfo.setColor(color);
                 if(wordInfo.getFontSize() > 1){
-                    wordList.add(wordInfo);
+                   wordList.add(wordInfo);
                 }
             }
-            wordBuilder = new StringBuilder();
-            textPositions = new ArrayList<>();
-        }else {
-            wordBuilder.append(ch);
-            textPositions.add(text);
+            i += word.length() + 1;
         }
     }
-
 
     /**
      * Adds color-related operators for text extraction.
