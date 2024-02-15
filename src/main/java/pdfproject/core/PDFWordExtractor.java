@@ -3,6 +3,7 @@ package pdfproject.core;
 import org.apache.pdfbox.contentstream.operator.color.*;
 import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.graphics.color.PDColor;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.text.TextPosition;
 import pdfproject.models.WordInfo;
@@ -27,6 +28,7 @@ public class PDFWordExtractor extends PDFTextStripper {
     List<TextPosition> textPositions = new ArrayList<>();
     private int prevPageNum;
     private TextPosition prevText;
+    private PDColor curColor;
 
     /**
      * Constructs a PDFWordExtractor for the specified file and pages.
@@ -101,15 +103,21 @@ public class PDFWordExtractor extends PDFTextStripper {
                 int pageNum = modifyPageNum ? curPageNum - minPageNum + 1 : curPageNum;
                 wordInfo.setFinalPageNumber(pageNum);
                 wordInfo.setLine(line);
+                wordInfo.setColor(curColor);
                 if(wordInfo.getFontSize() > 1){
                     wordList.add(wordInfo);
                 }
             }
             wordBuilder = new StringBuilder();
             textPositions = new ArrayList<>();
+            curColor = null;
+
         }else {
             wordBuilder.append(ch);
             textPositions.add(text);
+            if (curColor == null){
+                curColor = getGraphicsState().getNonStrokingColor();
+            }
         }
     }
 

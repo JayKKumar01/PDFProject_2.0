@@ -6,6 +6,7 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.graphics.color.PDColor;
 import org.apache.pdfbox.util.Matrix;
 import pdfproject.models.WordInfo;
 
@@ -57,7 +58,7 @@ public class InfoDocUtil {
             Info info = new Info(wordInfo.getWord(), wordInfo.getInfo(), wordInfo.getPDFont(), Base.getColorFromOperations(wordInfo.getTypeList()));
             info.setPositionY(wordInfo.getPosition());
             info.setLine(wordInfo.getLine());
-
+            info.setPdColor(wordInfo.getColor());
             // If the page number is not already in the map, create a new list
             // Otherwise, add the info to the existing list for that page
             pageToInfoListMap.computeIfAbsent(pageNumber, k -> new ArrayList<>()).add(info);
@@ -70,7 +71,10 @@ public class InfoDocUtil {
 
             while (iterator.hasNext()) {
                 Info b = iterator.next();
-                if (a != null && a.getInfo().equals(b.getInfo()) && a.getPositionY() == b.getPositionY()) {
+                if (a != null
+                        && a.getInfo().equals(b.getInfo())
+                        && a.getPositionY() == b.getPositionY()
+                        && a.getPdColor() == b.getPdColor()) {
                     a.setSentence(a.getSentence() + " " + b.getSentence());
                     // Remove the second element (b) after setting the sentence
                     iterator.remove();
@@ -114,7 +118,12 @@ public class InfoDocUtil {
 
                     contentStream.beginText();
                     contentStream.setTextMatrix(Matrix.getTranslateInstance(20, yLimit));
-                    contentStream.setNonStrokingColor(Color.BLACK);
+                    PDColor pdColor = in.getPdColor();
+                    if (pdColor == null) {
+                        contentStream.setNonStrokingColor(Color.BLACK);
+                    }else {
+                        contentStream.setNonStrokingColor(pdColor);
+                    }
                     contentStream.setFont(PDType1Font.TIMES_ROMAN, 12);
                     contentStream.showText(in.getSentence());
 
@@ -141,6 +150,7 @@ public class InfoDocUtil {
         private String info;
         private PDFont font;
         private Color color;
+        private PDColor pdColor;
         private int positionY;
         private int line;
 
@@ -149,6 +159,14 @@ public class InfoDocUtil {
             this.info = info;
             this.font = font;
             this.color = color;
+        }
+
+        public PDColor getPdColor() {
+            return pdColor;
+        }
+
+        public void setPdColor(PDColor pdColor) {
+            this.pdColor = pdColor;
         }
 
         public int getLine() {
