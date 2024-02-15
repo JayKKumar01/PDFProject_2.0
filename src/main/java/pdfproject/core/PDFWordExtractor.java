@@ -95,6 +95,12 @@ public class PDFWordExtractor extends PDFTextStripper {
     protected void writeString(String string, List<TextPosition> textPositions) {
         // if does not ends with \n will combine next word using process
         line++;
+        int curPageNum = this.getCurrentPageNo();
+        if (previousPageNum != 0 && previousPageNum != curPageNum){
+            line = 1;
+        }
+        previousPageNum = curPageNum;
+
         String[] words = string.split(getWordSeparator());
         int i = 0;
 
@@ -107,12 +113,6 @@ public class PDFWordExtractor extends PDFTextStripper {
                 }
                 WordInfo wordInfo = new WordInfo(word, positions);
 
-
-                int curPageNum = this.getCurrentPageNo();
-                if (previousPageNum != 0 && previousPageNum != curPageNum){
-                    line = 1;
-                }
-                previousPageNum = curPageNum;
                 wordInfo.setLine(line);
                 wordInfo.setPageNumber(this.getCurrentPageNo());
                 int pageNum = modifyPageNum ? this.getCurrentPageNo() - minPageNum + 1 : this.getCurrentPageNo();
@@ -122,12 +122,6 @@ public class PDFWordExtractor extends PDFTextStripper {
                 if(wordInfo.getFontSize() > 1){
                    wordList.add(wordInfo);
                 }
-            }else {
-                int curPageNum = this.getCurrentPageNo();
-                if (previousPageNum != 0 && previousPageNum != curPageNum){
-                    line = 1;
-                }
-                previousPageNum = curPageNum;
             }
             i += word.length() + 1;
         }
