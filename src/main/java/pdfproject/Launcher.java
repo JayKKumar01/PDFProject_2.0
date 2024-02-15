@@ -121,7 +121,7 @@ public class Launcher {
             outputStream = new FileOutputStream(tempFile);  // Use temporary file
 
             int sheetIndex = workbook.getNumberOfSheets();
-            Sheet sheet = workbook.createSheet("Sheet" + (sheetIndex + 1));
+            Sheet sheet = workbook.createSheet("Form " + (sheetIndex + 1));
 
             int rowIndex = findNextAvailableRow(sheet);
 
@@ -173,6 +173,7 @@ public class Launcher {
             outputStream.close();
             // If everything is successful, replace the original file with the temporary one
             Files.move(tempFile.toPath(), excelFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            System.out.println("Result sheet updated at: "+excelFile.getAbsolutePath());
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Error updating Excel sheet for input line " + (rowNumber) + ": " + e.getMessage());
