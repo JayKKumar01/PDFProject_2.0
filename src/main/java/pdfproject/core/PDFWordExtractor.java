@@ -29,10 +29,6 @@ public class PDFWordExtractor extends PDFTextStripper {
     List<TextPosition> textPositions = new ArrayList<>();
     private int prevPageNum;
     private TextPosition prevText;
-    private PDColor curColor;
-    private boolean processDone;
-    private float sum = 0;
-    private float count = 0;
 
     /**
      * Constructs a PDFWordExtractor for the specified file and pages.
@@ -68,29 +64,57 @@ public class PDFWordExtractor extends PDFTextStripper {
 
     @Override
     protected void writeString(String string, List<TextPosition> texts) {
+        int curPageNum = this.getCurrentPageNo();
 
         for (int i=0; i<texts.size();i++){
             TextPosition curText = texts.get(i);
+
+            String ch = curText.getUnicode();
+            if (ch.trim().isEmpty()){
+                continue;
+            }
+
 
 
             if (prevText != null){
                 float xGap = curText.getX() - (prevText.getX() + prevText.getWidth());
                 float yGap = curText.getY() - prevText.getY();
                 float space = (float) (0.8 * curText.getWidthOfSpace());
-                if (yGap > 0){
-                    System.out.println();
-                }else if (xGap > space ){
-                    System.out.print(" ");
+
+                if (yGap > 0 || xGap > space){
+                    if (yGap > 0) {
+                        line++;
+                        System.out.println();
+                    }else {
+                        System.out.print(" ");
+                    }
+                    if (prevPageNum != curPageNum){
+                        line = 1;
+                    }
+                    WordInfo wordInfo = new WordInfo(wordBuilder.toString(),textPositions);
+                    wordInfo.setPageNumber(curPageNum);
+                    int pageNum = modifyPageNum ? curPageNum - minPageNum + 1 : curPageNum;
+                    wordInfo.setFinalPageNumber(pageNum);
+                    wordInfo.setLine(line);
+
+                    wordList.add(wordInfo);
+
+                    wordBuilder = new StringBuilder();
+                    textPositions = new ArrayList<>();
                 }
             }
 
-            String ch = curText.getUnicode();
-            if (ch.trim().isEmpty()){
-                continue;
-            }
-            prevText = curText;
+
+
             System.out.print(ch);
+            wordBuilder.append(ch);
+            textPositions.add(curText);
+
+
+            prevText = curText;
+
         }
+        prevPageNum = curPageNum;
     }
 
     /**
@@ -104,8 +128,6 @@ public class PDFWordExtractor extends PDFTextStripper {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println();
-//        System.out.println("Avg: "+count);
         return wordList;
     }
 
