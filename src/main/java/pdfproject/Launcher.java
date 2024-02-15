@@ -160,9 +160,13 @@ public class Launcher {
                     XSSFFont font = workbook.createFont();
                     font.setColor(Base.getIndexedColor(color).getIndex());
                     style.setFont(font);
+                    //style.setWrapText(true);
                     cellInfo.setCellStyle(style);
                 }
             }
+            sheet.autoSizeColumn(0);
+            sheet.autoSizeColumn(1);
+            sheet.autoSizeColumn(2);
 
             workbook.write(outputStream);
             workbook.close();

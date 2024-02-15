@@ -85,9 +85,9 @@ public class Base {
         if (size1 != size2){
             wordInfo2.addType(Constants.Operation.SIZE);
             if (isComma){
-                builder.append(",");
+                builder.append(", ");
             }
-            builder.append(size1).append(divider).append(size2);
+            builder.append("Size: (").append(size1).append(divider).append(size2).append(")");
             isComma = true;
         }
         String style1 = wordInfo1.getFontStyle();
@@ -95,7 +95,7 @@ public class Base {
         if (!style1.equals(style2)){
             wordInfo2.addType(Constants.Operation.STYLE);
             if (isComma){
-                builder.append(",");
+                builder.append(", ");
             }
             builder.append(style1).append(divider).append(style2);
         }
