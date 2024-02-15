@@ -121,9 +121,18 @@ public class Launcher {
             outputStream = new FileOutputStream(tempFile);  // Use temporary file
 
             int sheetIndex = workbook.getNumberOfSheets();
-            Sheet sheet = workbook.createSheet("Form " + (sheetIndex + 1));
+            Sheet sheet = workbook.createSheet("Input Row " + rowNumber);
 
             int rowIndex = findNextAvailableRow(sheet);
+            if (masterList.isEmpty()){
+                Cell cell = sheet.createRow(rowIndex).createCell(0);
+                cell.setCellValue("No Difference Found! Kindly look at the generated images for Visual Differences. i.e. Alignment");
+                CellStyle style = workbook.createCellStyle();
+                style.setFillForegroundColor(IndexedColors.BRIGHT_GREEN.getIndex());
+                style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+                cell.setCellStyle(style);
+            }
+
 
             // Iterate through each inner list of masterList (representing each page)
             for (int i = 0; i < masterList.size(); i++) {
@@ -147,7 +156,7 @@ public class Launcher {
                     }
                     int cellIndex = 1;
                     Cell cellLine = row.createCell(cellIndex++);
-                    cellLine.setCellValue(info.getLine());
+                    cellLine.setCellValue("Line: "+info.getLine());
 
                     Cell cellSentence = row.createCell(cellIndex++);
                     cellSentence.setCellValue(info.getSentence());

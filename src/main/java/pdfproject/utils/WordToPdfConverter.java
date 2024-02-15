@@ -74,6 +74,7 @@ public class WordToPdfConverter {
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 System.out.println("Conversion process timed out: " + e.getMessage());
                 remainingAttempts--;
+                sleepBeforeRetry();
             }finally {
                 closeConverter(converter);
             }
