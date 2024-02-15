@@ -42,9 +42,9 @@ public class PDFProject {
      * @param pdf2 Path to the second PDF file.
      */
     public PDFProject(String pdf1, String pdf2) {
-//        this.pdf1 = getFile(pdf1);
+        this.pdf1 = getFile(pdf1);
         this.pdf2 = getFile(pdf2);
-        this.pdf1 = null;
+//        this.pdf1 = null;
         createOutputFolder();
     }
 
@@ -57,16 +57,16 @@ public class PDFProject {
 //            return false;
 //        }
 
-        List<WordInfo> list3 = PDFUtil.WordList(pdf2, pagesPDF2);
-        System.out.println(list3.size());
+        // Extracting WordInfo lists for each PDF and finding differences
+        List<WordInfo> list1 = PDFUtil.WordList(pdf1, pagesPDF1);
+        List<WordInfo> list2 = PDFUtil.WordList(pdf2, pagesPDF2);
 
         boolean x = true;
         if (x){
             return false;
         }
-        // Extracting WordInfo lists for each PDF and finding differences
-        List<WordInfo> list1 = PDFUtil.WordList(pdf1, pagesPDF1);
-        List<WordInfo> list2 = PDFUtil.WordList(pdf2, pagesPDF2);
+
+
 
         List<WordInfo> list = StringDiff.List(list1, list2);
 

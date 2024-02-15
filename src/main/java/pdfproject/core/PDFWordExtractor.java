@@ -31,6 +31,8 @@ public class PDFWordExtractor extends PDFTextStripper {
     private TextPosition prevText;
     private PDColor curColor;
     private boolean processDone;
+    private float sum = 0;
+    private float count = 0;
 
     /**
      * Constructs a PDFWordExtractor for the specified file and pages.
@@ -74,7 +76,9 @@ public class PDFWordExtractor extends PDFTextStripper {
                 TextPosition prevText = textPositions.get(textPositions.size()-1);
                 float xGap = curText.getX() - (prevText.getX() + prevText.getWidth());
                 float yGap = curText.getY() - prevText.getY();
-                if (xGap > 0 || yGap > 0){
+                if (yGap > 0){
+                    System.out.println();
+                }else if (xGap > 2){
                     System.out.print(" ");
                 }
             }
@@ -98,6 +102,8 @@ public class PDFWordExtractor extends PDFTextStripper {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println();
+//        System.out.println("Avg: "+count);
         return wordList;
     }
 
