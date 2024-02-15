@@ -31,7 +31,7 @@ public class Launcher {
     // List to store temporary files created during the execution of the program
     public static List<File> tempFiles = new ArrayList<>();
     public static boolean isInProgress;
-    private static final String excelFilePath = Config.OUTPUT_IMAGES_PATH+"\\report_"+System.currentTimeMillis()+".xlsx";
+    private static final String excelFilePath = Config.OUTPUT_IMAGES_PATH+"\\Result_"+System.currentTimeMillis()+".xlsx";
 
     /**
      * The main method that serves as the entry point for the program.
@@ -125,10 +125,6 @@ public class Launcher {
 
             int rowIndex = findNextAvailableRow(sheet);
 
-
-
-            IndexedColorMap colorMap = workbook.getStylesSource().getIndexedColors();
-
             // Iterate through each inner list of masterList (representing each page)
             for (int i = 0; i < masterList.size(); i++) {
                 List<InfoDocUtil.Info> pageInfoList = masterList.get(i);
@@ -136,9 +132,20 @@ public class Launcher {
                 Row pageRow = sheet.createRow(rowIndex++);
                 Cell pageCell = pageRow.createCell(0);
                 pageCell.setCellValue("Page " + (i + 1));
-
+                CellStyle style = workbook.createCellStyle();
+                style.setFillForegroundColor(IndexedColors.BRIGHT_GREEN.getIndex());
+                style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+                pageCell.setCellStyle(style);
+                boolean first = true;
                 for (InfoDocUtil.Info info : pageInfoList) {
-                    Row row = sheet.createRow(rowIndex++);
+                    Row row = null;
+                    if (first) {
+                        first = false;
+                        row = pageRow;
+                    }else {
+                        row = sheet.createRow(rowIndex++);
+                    }
+
                     int cellIndex = 1;
 
                     Cell cellSentence = row.createCell(cellIndex++);
@@ -149,7 +156,7 @@ public class Launcher {
                     Cell cellInfo = row.createCell(cellIndex);
                     cellInfo.setCellValue(info.getInfo());
 
-                    CellStyle style = workbook.createCellStyle();
+                    style = workbook.createCellStyle();
                     XSSFFont font = workbook.createFont();
                     font.setColor(Base.getIndexedColor(color).getIndex());
                     style.setFont(font);
