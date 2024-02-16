@@ -28,6 +28,7 @@ public class PDFWordExtractor extends PDFTextStripper {
     private List<TextPosition> textPositions;
     private int prevPageNum = -1;
     private TextPosition prevText,prevT;
+    private float maxGap  = Integer.MIN_VALUE;
 
     /**
      * Constructs a PDFWordExtractor for the specified file and pages.
@@ -73,6 +74,10 @@ public class PDFWordExtractor extends PDFTextStripper {
         if (prevPageNum != curPageNum){
             line = 1;
             prevText = null;
+            if (prevT != null){
+                System.out.println();
+                System.out.println();
+            }
             prevT = null;
             wordBuilder = new StringBuilder();
             textPositions = new ArrayList<>();
@@ -104,6 +109,17 @@ public class PDFWordExtractor extends PDFTextStripper {
                         float yGap = curText.getY() - prevT.getY();
                         float xGap = curText.getX() - (prevT.getX() + prevT.getWidth());
                         float space = (float) (.9 * curText.getWidthOfSpace());
+                        space = 2;
+                        if (xGap < space){
+                            maxGap = Math.max(maxGap,xGap);
+                        }
+//                        if (xGap > 0 && space >= xGap) {
+//                            maxGap = Math.max(maxGap,xGap);
+//                            //System.out.print("["+space + ":" + xGap + "]");
+//                        }
+//                        if (xGap > 0) {
+//                            System.out.print("["+space + ":" + xGap + "]");
+//                        }
                         if (space < xGap || yGap > 0) {
 //                            if (space < xGap)
 //                                System.out.print(" ");
@@ -121,7 +137,7 @@ public class PDFWordExtractor extends PDFTextStripper {
                             if (yGap > 0) {
                                 line++;
                                 System.out.println();
-                            }else {
+                            }else{
                                 System.out.print(" ");
                             }
 
@@ -212,6 +228,7 @@ public class PDFWordExtractor extends PDFTextStripper {
                 wordList.add(wordInfo);
             }
         }
+        System.out.println("MaxGap: "+maxGap);
         return wordList;
     }
 

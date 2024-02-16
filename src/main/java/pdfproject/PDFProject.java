@@ -62,18 +62,18 @@ public class PDFProject {
 
         List<WordInfo> list1 = PDFUtil.WordList(pdf1, pagesPDF1);
         List<WordInfo> list2 = PDFUtil.WordList(pdf2, pagesPDF2);
-        for (int i =0; i < Math.max(list1.size(),list2.size()); i++){
-            if (i<list1.size()){
-                WordInfo wordInfo = list1.get(i);
-                System.out.print(wordInfo.getLine()+". "+wordInfo.getWord());
-            }
-            System.out.print(" : ");
-            if (i<list2.size()){
-                WordInfo wordInfo = list2.get(i);
-                System.out.print(wordInfo.getLine()+". "+wordInfo.getWord());
-            }
-            System.out.println();
-        }
+//        for (int i =0; i < Math.max(list1.size(),list2.size()); i++){
+//            if (i<list1.size()){
+//                WordInfo wordInfo = list1.get(i);
+//                System.out.print(wordInfo.getLine()+". "+wordInfo.getWord());
+//            }
+//            System.out.print(" : ");
+//            if (i<list2.size()){
+//                WordInfo wordInfo = list2.get(i);
+//                System.out.print(wordInfo.getLine()+". "+wordInfo.getWord());
+//            }
+//            System.out.println();
+//        }
         System.out.println(list1.size()+" : "+list2.size());
 
 //        boolean x = true;
