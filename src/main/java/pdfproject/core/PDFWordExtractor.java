@@ -113,7 +113,9 @@ public class PDFWordExtractor extends PDFTextStripper {
                             wordInfo.setFinalPageNumber(pageNum);
                             wordInfo.setLine(line);
 
-                            wordList.add(wordInfo);
+                            if (wordInfo.getFontSize()>1) {
+                                wordList.add(wordInfo);
+                            }
 
                             wordBuilder = new StringBuilder();
                             textPositions = new ArrayList<>();
@@ -190,15 +192,18 @@ public class PDFWordExtractor extends PDFTextStripper {
         } catch (IOException e) {
             e.printStackTrace();
         }
-//        WordInfo wordInfo = new WordInfo(wordBuilder.toString(),textPositions);
-//        wordInfo.setPageNumber(prevPageNum);
-//        int pageNum = modifyPageNum ? prevPageNum - minPageNum + 1 : prevPageNum;
-//        wordInfo.setFinalPageNumber(pageNum);
-//        wordInfo.setLine(line);
-//
-//        if (wordInfo.getFontSize() > 1) {
-//            wordList.add(wordInfo);
-//        }
+        String lastWord = wordBuilder.toString();
+        if (!lastWord.isEmpty() && !textPositions.isEmpty()) {
+            WordInfo wordInfo = new WordInfo(wordBuilder.toString(), textPositions);
+            wordInfo.setPageNumber(prevPageNum);
+            int pageNum = modifyPageNum ? prevPageNum - minPageNum + 1 : prevPageNum;
+            wordInfo.setFinalPageNumber(pageNum);
+            wordInfo.setLine(line);
+
+            if (wordInfo.getFontSize() > 1) {
+                wordList.add(wordInfo);
+            }
+        }
         return wordList;
     }
 
