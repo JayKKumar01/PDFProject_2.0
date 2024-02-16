@@ -29,6 +29,7 @@ public class SortingUtil implements Comparator<WordInfo> {
      */
     @Override
     public int compare(WordInfo w1, WordInfo w2) {
-        return compare(w1.getPosition(), w2.getPosition());
+        return compare(w1.getLine(),w2.getLine());
+//        return compare(w1.getPosition(), w2.getPosition());
     }
 }

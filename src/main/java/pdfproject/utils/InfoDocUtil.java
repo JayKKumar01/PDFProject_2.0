@@ -73,7 +73,8 @@ public class InfoDocUtil {
                 Info b = iterator.next();
                 if (a != null
                         && a.getInfo().equals(b.getInfo())
-                        && a.getPositionY() == b.getPositionY()
+                        && a.getLine() == a.getLine()
+//                        && a.getPositionY() == b.getPositionY()
                         && a.getPdColor() == b.getPdColor()) {
                     a.setSentence(a.getSentence() + " " + b.getSentence());
                     // Remove the second element (b) after setting the sentence

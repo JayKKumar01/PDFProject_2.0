@@ -2,6 +2,7 @@ package pdfproject;
 
 import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.poi.hssf.record.WindowOneRecord;
 import pdfproject.core.StringDiff;
 import pdfproject.enums.Constants;
 import pdfproject.enums.Constants.FileFormat;
@@ -62,7 +63,16 @@ public class PDFProject {
         List<WordInfo> list1 = PDFUtil.WordList(pdf1, pagesPDF1);
         List<WordInfo> list2 = PDFUtil.WordList(pdf2, pagesPDF2);
         for (int i =0; i < Math.max(list1.size(),list2.size()); i++){
-            System.out.println((list1.size() > i ? list1.get(i).getWord(): "")+" : "+(list2.size() > i ? list2.get(i).getWord():""));
+            if (i<list1.size()){
+                WordInfo wordInfo = list1.get(i);
+                System.out.print(wordInfo.getLine()+". "+wordInfo.getWord());
+            }
+            System.out.print(" : ");
+            if (i<list2.size()){
+                WordInfo wordInfo = list2.get(i);
+                System.out.print(wordInfo.getLine()+". "+wordInfo.getWord());
+            }
+            System.out.println();
         }
         System.out.println(list1.size()+" : "+list2.size());
 

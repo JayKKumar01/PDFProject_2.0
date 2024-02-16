@@ -107,12 +107,7 @@ public class PDFWordExtractor extends PDFTextStripper {
                         if (space < xGap || yGap > 0) {
 //                            if (space < xGap)
 //                                System.out.print(" ");
-                            if (yGap > 0) {
-                                line++;
-                                System.out.println();
-                            }else {
-                                System.out.print(" ");
-                            }
+
                             WordInfo wordInfo = new WordInfo(wordBuilder.toString(),textPositions);
                             wordInfo.setPageNumber(curPageNum);
                             int pageNum = modifyPageNum ? curPageNum - minPageNum + 1 : curPageNum;
@@ -121,6 +116,13 @@ public class PDFWordExtractor extends PDFTextStripper {
 
                             if (wordInfo.getFontSize()>1) {
                                 wordList.add(wordInfo);
+                            }
+
+                            if (yGap > 0) {
+                                line++;
+                                System.out.println();
+                            }else {
+                                System.out.print(" ");
                             }
 
                             wordBuilder = new StringBuilder();
