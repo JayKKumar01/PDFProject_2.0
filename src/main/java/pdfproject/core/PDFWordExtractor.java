@@ -28,7 +28,7 @@ public class PDFWordExtractor extends PDFTextStripper {
     private StringBuilder wordBuilder = new StringBuilder();
     List<TextPosition> textPositions = new ArrayList<>();
     private int prevPageNum;
-    private TextPosition prevText;
+    private TextPosition prevText,prevT;
 
     /**
      * Constructs a PDFWordExtractor for the specified file and pages.
@@ -51,12 +51,18 @@ public class PDFWordExtractor extends PDFTextStripper {
 
         if (pages.isEmpty()) {
             String text = this.getText(document);
+            String[] lines = text.split("\\n");
+            System.out.println("Lines: "+lines.length);
+            System.out.println("Calculated Lines: "+line);
         } else {
             modifyPageNum = true;
             for (int page : pages) {
                 this.setStartPage(page);
                 this.setEndPage(page);
-                this.getText(document);
+                String text = this.getText(document);
+                String[] lines = text.split("\\n");
+                System.out.println("\nLines: "+lines.length);
+                System.out.println("Calculated Lines: "+line);
             }
         }
     }
@@ -71,55 +77,79 @@ public class PDFWordExtractor extends PDFTextStripper {
 
         for (int i=0; i<texts.size();i++){
             TextPosition curText = texts.get(i);
-
             String ch = curText.getUnicode();
-            if (prevText != null){
+            if (prevText == null){
+                if (!ch.trim().isEmpty()) {
+                    System.out.print(ch);
+                    prevT = curText;
+                }
+            }else {
                 float yGap = curText.getY() - prevText.getY();
+
                 if (yGap > 0){
                     line++;
                     System.out.println();
                 }
-            }
+                if (!ch.trim().isEmpty()){
+                    if (prevT == null){
+                        System.out.print(ch);
+                    }else {
+                        float xGap = curText.getX() - (prevT.getX() + prevT.getWidth());
+                        float space = (float) (.9 * curText.getWidthOfSpace());
+                        if (space < xGap) {
+                            System.out.print(" ");
+                        }
+//                        System.out.print("["+space+":"+xGap+"]");
 
+                        System.out.print(ch);
 
-
-            if (ch.trim().isEmpty()){
-                prevText = curText;
-                continue;
-            }
-
-
-
-            if (prevText != null){
-                float xGap = curText.getX() - (prevText.getX() + prevText.getWidth());
-                float yGap = curText.getY() - prevText.getY();
-                float space = (float) (0.8 * curText.getWidthOfSpace());
-
-                if (yGap > 0 || xGap > space){
-                    if (xGap > space) {
-                        System.out.print(" ");
                     }
-
-                    WordInfo wordInfo = new WordInfo(wordBuilder.toString(),textPositions);
-                    wordInfo.setPageNumber(curPageNum);
-                    int pageNum = modifyPageNum ? curPageNum - minPageNum + 1 : curPageNum;
-                    wordInfo.setFinalPageNumber(pageNum);
-                    wordInfo.setLine(line);
-
-                    if (wordInfo.getFontSize() > 1) {
-                        wordList.add(wordInfo);
-                    }
-
-                    wordBuilder = new StringBuilder();
-                    textPositions = new ArrayList<>();
+                    prevT = curText;
                 }
+
             }
 
 
-
-            System.out.print(ch);
-            wordBuilder.append(ch);
-            textPositions.add(curText);
+//
+//
+//
+//            if (ch.trim().isEmpty()){
+//                prevText = curText;
+//                continue;
+//            }
+//
+//
+//
+//            if (prevText != null){
+//                float xGap = curText.getX() - (prevText.getX() + prevText.getWidth());
+//                float yGap = curText.getY() - prevText.getY();
+//                float space = (float) (0.8 * curText.getWidthOfSpace());
+//
+//                if (yGap > 0 || xGap > space){
+//                    if (xGap > space) {
+//                        System.out.print(" ");
+//                    }
+//
+//                    WordInfo wordInfo = new WordInfo(wordBuilder.toString(),textPositions);
+//                    wordInfo.setPageNumber(curPageNum);
+//                    int pageNum = modifyPageNum ? curPageNum - minPageNum + 1 : curPageNum;
+//                    wordInfo.setFinalPageNumber(pageNum);
+//                    wordInfo.setLine(line);
+//
+//                    if (wordInfo.getFontSize() > 1) {
+//                        wordList.add(wordInfo);
+//                    }
+//
+//                    wordBuilder = new StringBuilder();
+//                    textPositions = new ArrayList<>();
+//                }
+//            }
+//
+//
+//
+//            System.out.print(ch);
+//            wordBuilder.append(ch);
+//            textPositions.add(curText);
 
 
             prevText = curText;

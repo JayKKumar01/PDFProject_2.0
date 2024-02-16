@@ -58,14 +58,16 @@ public class PDFProject {
 //        }
 
         // Extracting WordInfo lists for each PDF and finding differences
+
+        List<WordInfo> list3 = PDFUtil.WordList(pdf2, pagesPDF2);
+
+        System.out.println(list3.size());
+        boolean x = true;
+        if (x){
+            return false;
+        }
         List<WordInfo> list1 = PDFUtil.WordList(pdf1, pagesPDF1);
         List<WordInfo> list2 = PDFUtil.WordList(pdf2, pagesPDF2);
-
-//        System.out.println(list1.size()+":"+list2.size());
-//        boolean x = true;
-//        if (x){
-//            return false;
-//        }
 
 
 
