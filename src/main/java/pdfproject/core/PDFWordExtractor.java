@@ -65,12 +65,17 @@ public class PDFWordExtractor extends PDFTextStripper {
     @Override
     protected void writeString(String string, List<TextPosition> texts) {
         int curPageNum = this.getCurrentPageNo();
+        if (prevPageNum != curPageNum){
+            line = 1;
+        }
 
         for (int i=0; i<texts.size();i++){
             TextPosition curText = texts.get(i);
 
             String ch = curText.getUnicode();
             if (ch.trim().isEmpty()){
+
+
                 continue;
             }
 
@@ -88,16 +93,16 @@ public class PDFWordExtractor extends PDFTextStripper {
                     }else {
                         System.out.print(" ");
                     }
-                    if (prevPageNum != curPageNum){
-                        line = 1;
-                    }
+
                     WordInfo wordInfo = new WordInfo(wordBuilder.toString(),textPositions);
                     wordInfo.setPageNumber(curPageNum);
                     int pageNum = modifyPageNum ? curPageNum - minPageNum + 1 : curPageNum;
                     wordInfo.setFinalPageNumber(pageNum);
                     wordInfo.setLine(line);
 
-                    wordList.add(wordInfo);
+                    if (wordInfo.getFontSize() > 1) {
+                        wordList.add(wordInfo);
+                    }
 
                     wordBuilder = new StringBuilder();
                     textPositions = new ArrayList<>();
@@ -127,6 +132,15 @@ public class PDFWordExtractor extends PDFTextStripper {
             document.close();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+        WordInfo wordInfo = new WordInfo(wordBuilder.toString(),textPositions);
+        wordInfo.setPageNumber(prevPageNum);
+        int pageNum = modifyPageNum ? prevPageNum - minPageNum + 1 : prevPageNum;
+        wordInfo.setFinalPageNumber(pageNum);
+        wordInfo.setLine(line);
+
+        if (wordInfo.getFontSize() > 1) {
+            wordList.add(wordInfo);
         }
         return wordList;
     }
