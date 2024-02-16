@@ -50,19 +50,13 @@ public class PDFWordExtractor extends PDFTextStripper {
         this.setSortByPosition(true);
 
         if (pages.isEmpty()) {
-            String text = this.getText(document);
-            String[] lines = text.split("\\n");
-            System.out.println("\nLines: "+lines.length);
-            System.out.println("Calculated Lines: "+line);
+            this.getText(document);
         } else {
             modifyPageNum = true;
             for (int page : pages) {
                 this.setStartPage(page);
                 this.setEndPage(page);
-                String text = this.getText(document);
-                String[] lines = text.split("\\n");
-                System.out.println("\nLines: "+lines.length);
-                System.out.println("Calculated Lines: "+line);
+                this.getText(document);
             }
         }
     }
@@ -74,10 +68,6 @@ public class PDFWordExtractor extends PDFTextStripper {
         if (prevPageNum != curPageNum){
             line = 1;
             prevText = null;
-            if (prevT != null){
-                System.out.println();
-                System.out.println();
-            }
             prevT = null;
             wordBuilder = new StringBuilder();
             textPositions = new ArrayList<>();
@@ -88,41 +78,20 @@ public class PDFWordExtractor extends PDFTextStripper {
             String ch = curText.getUnicode();
             if (prevText == null){
                 if (!ch.trim().isEmpty() && curText.getFontSize() > 1) {
-                    System.out.print(ch);
                     wordBuilder.append(ch);
                     textPositions.add(curText);
                     prevT = curText;
                 }
             }else {
-//                float yGap = curText.getY() - prevText.getY();
-//
-//                if (yGap > 0){
-//                    line++;
-//                    System.out.println();
-//                }
                 if (!ch.trim().isEmpty() && curText.getFontSize() > 1){
                     if (prevT == null){
-                        System.out.print(ch);
                         wordBuilder.append(ch);
                         textPositions.add(curText);
                     }else {
                         float yGap = curText.getY() - prevT.getY();
                         float xGap = curText.getX() - (prevT.getX() + prevT.getWidth());
-                        float space = (float) (.9 * curText.getWidthOfSpace());
-                        space = 2;
-                        if (xGap < space){
-                            maxGap = Math.max(maxGap,xGap);
-                        }
-//                        if (xGap > 0 && space >= xGap) {
-//                            maxGap = Math.max(maxGap,xGap);
-//                            //System.out.print("["+space + ":" + xGap + "]");
-//                        }
-//                        if (xGap > 0) {
-//                            System.out.print("["+space + ":" + xGap + "]");
-//                        }
+                        float space = 2;
                         if (space < xGap || yGap > 0) {
-//                            if (space < xGap)
-//                                System.out.print(" ");
 
                             WordInfo wordInfo = new WordInfo(wordBuilder.toString(),textPositions);
                             wordInfo.setPageNumber(curPageNum);
@@ -136,17 +105,12 @@ public class PDFWordExtractor extends PDFTextStripper {
 
                             if (yGap > 0) {
                                 line++;
-                                System.out.println();
-                            }else{
-                                System.out.print(" ");
                             }
 
                             wordBuilder = new StringBuilder();
                             textPositions = new ArrayList<>();
                         }
-//                        System.out.print("["+space+":"+xGap+"]");
 
-                        System.out.print(ch);
                         wordBuilder.append(ch);
                         textPositions.add(curText);
 
@@ -155,49 +119,6 @@ public class PDFWordExtractor extends PDFTextStripper {
                 }
 
             }
-
-
-//
-//
-//
-//            if (ch.trim().isEmpty()){
-//                prevText = curText;
-//                continue;
-//            }
-//
-//
-//
-//            if (prevText != null){
-//                float xGap = curText.getX() - (prevText.getX() + prevText.getWidth());
-//                float yGap = curText.getY() - prevText.getY();
-//                float space = (float) (0.8 * curText.getWidthOfSpace());
-//
-//                if (yGap > 0 || xGap > space){
-//                    if (xGap > space) {
-//                        System.out.print(" ");
-//                    }
-//
-//                    WordInfo wordInfo = new WordInfo(wordBuilder.toString(),textPositions);
-//                    wordInfo.setPageNumber(curPageNum);
-//                    int pageNum = modifyPageNum ? curPageNum - minPageNum + 1 : curPageNum;
-//                    wordInfo.setFinalPageNumber(pageNum);
-//                    wordInfo.setLine(line);
-//
-//                    if (wordInfo.getFontSize() > 1) {
-//                        wordList.add(wordInfo);
-//                    }
-//
-//                    wordBuilder = new StringBuilder();
-//                    textPositions = new ArrayList<>();
-//                }
-//            }
-//
-//
-//
-//            System.out.print(ch);
-//            wordBuilder.append(ch);
-//            textPositions.add(curText);
-
 
             prevText = curText;
 
@@ -228,7 +149,6 @@ public class PDFWordExtractor extends PDFTextStripper {
                 wordList.add(wordInfo);
             }
         }
-        System.out.println("MaxGap: "+maxGap);
         return wordList;
     }
 
