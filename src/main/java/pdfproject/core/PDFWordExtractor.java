@@ -82,31 +82,37 @@ public class PDFWordExtractor extends PDFTextStripper {
             TextPosition curText = texts.get(i);
             String ch = curText.getUnicode();
             if (prevText == null){
-                if (!ch.trim().isEmpty()) {
+                if (!ch.trim().isEmpty() && curText.getFontSize() > 1) {
                     System.out.print(ch);
                     wordBuilder.append(ch);
                     textPositions.add(curText);
                     prevT = curText;
                 }
             }else {
-                float yGap = curText.getY() - prevText.getY();
-
-                if (yGap > 0){
-                    line++;
-                    System.out.println();
-                }
-                if (!ch.trim().isEmpty()){
+//                float yGap = curText.getY() - prevText.getY();
+//
+//                if (yGap > 0){
+//                    line++;
+//                    System.out.println();
+//                }
+                if (!ch.trim().isEmpty() && curText.getFontSize() > 1){
                     if (prevT == null){
                         System.out.print(ch);
                         wordBuilder.append(ch);
                         textPositions.add(curText);
                     }else {
-                        yGap = curText.getY() - prevT.getY();
+                        float yGap = curText.getY() - prevT.getY();
                         float xGap = curText.getX() - (prevT.getX() + prevT.getWidth());
                         float space = (float) (.9 * curText.getWidthOfSpace());
                         if (space < xGap || yGap > 0) {
-                            if (space < xGap)
+//                            if (space < xGap)
+//                                System.out.print(" ");
+                            if (yGap > 0) {
+                                line++;
+                                System.out.println();
+                            }else {
                                 System.out.print(" ");
+                            }
                             WordInfo wordInfo = new WordInfo(wordBuilder.toString(),textPositions);
                             wordInfo.setPageNumber(curPageNum);
                             int pageNum = modifyPageNum ? curPageNum - minPageNum + 1 : curPageNum;
