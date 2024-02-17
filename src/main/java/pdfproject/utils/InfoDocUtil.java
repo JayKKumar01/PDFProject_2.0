@@ -73,7 +73,7 @@ public class InfoDocUtil {
                 Info b = iterator.next();
                 if (a != null
                         && a.getInfo().equals(b.getInfo())
-                        && a.getLine() == a.getLine()
+                        && a.getLine() == b.getLine()
 //                        && a.getPositionY() == b.getPositionY()
                         && a.getPdColor() == b.getPdColor()) {
                     a.setSentence(a.getSentence() + " " + b.getSentence());

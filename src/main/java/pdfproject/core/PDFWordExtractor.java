@@ -23,12 +23,9 @@ public class PDFWordExtractor extends PDFTextStripper {
     private boolean modifyPageNum;
 
     private PDDocument document;
-    private int line = 1;
-    private StringBuilder wordBuilder;
-    private List<TextPosition> textPositions;
-    private int prevPageNum = -1;
-    private TextPosition prevText,prevT;
-    private float maxGap  = Integer.MIN_VALUE;
+    private int line = 0;
+    private int previousPageNum = 0;
+    private WordInfo prevWordInfo;
 
     /**
      * Constructs a PDFWordExtractor for the specified file and pages.
@@ -61,71 +58,6 @@ public class PDFWordExtractor extends PDFTextStripper {
         }
     }
 
-
-    @Override
-    protected void writeString(String string, List<TextPosition> texts) {
-        int curPageNum = this.getCurrentPageNo();
-        if (prevPageNum != curPageNum){
-            line = 1;
-            prevText = null;
-            prevT = null;
-            wordBuilder = new StringBuilder();
-            textPositions = new ArrayList<>();
-        }
-
-        for (int i=0; i<texts.size();i++){
-            TextPosition curText = texts.get(i);
-            String ch = curText.getUnicode();
-            if (prevText == null){
-                if (!ch.trim().isEmpty() && curText.getFontSize() > 1) {
-                    wordBuilder.append(ch);
-                    textPositions.add(curText);
-                    prevT = curText;
-                }
-            }else {
-                if (!ch.trim().isEmpty() && curText.getFontSize() > 1){
-                    if (prevT == null){
-                        wordBuilder.append(ch);
-                        textPositions.add(curText);
-                    }else {
-                        float yGap = curText.getY() - prevT.getY();
-                        float xGap = curText.getX() - (prevT.getX() + prevT.getWidth());
-                        float space = 2;
-                        if (space < xGap || yGap > 0) {
-
-                            WordInfo wordInfo = new WordInfo(wordBuilder.toString(),textPositions);
-                            wordInfo.setPageNumber(curPageNum);
-                            int pageNum = modifyPageNum ? curPageNum - minPageNum + 1 : curPageNum;
-                            wordInfo.setFinalPageNumber(pageNum);
-                            wordInfo.setLine(line);
-
-                            if (wordInfo.getFontSize()>1) {
-                                wordList.add(wordInfo);
-                            }
-
-                            if (yGap > 0) {
-                                line++;
-                            }
-
-                            wordBuilder = new StringBuilder();
-                            textPositions = new ArrayList<>();
-                        }
-
-                        wordBuilder.append(ch);
-                        textPositions.add(curText);
-
-                    }
-                    prevT = curText;
-                }
-
-            }
-
-            prevText = curText;
-
-        }
-        prevPageNum = curPageNum;
-    }
-
     /**
      * Gets the list of WordInfo extracted from the PDF.
      *
@@ -137,21 +69,87 @@ public class PDFWordExtractor extends PDFTextStripper {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        String lastWord = wordBuilder.toString();
-        if (!lastWord.isEmpty() && !textPositions.isEmpty()) {
-            WordInfo wordInfo = new WordInfo(wordBuilder.toString(), textPositions);
-            wordInfo.setPageNumber(prevPageNum);
-            int pageNum = modifyPageNum ? prevPageNum - minPageNum + 1 : prevPageNum;
-            wordInfo.setFinalPageNumber(pageNum);
-            wordInfo.setLine(line);
-
-            if (wordInfo.getFontSize() > 1) {
-                wordList.add(wordInfo);
-            }
-        }
+        System.out.println();
         return wordList;
     }
 
+    // Uncomment the following method if you want to process each TextPosition individually
+    // and store corresponding colors in colorList.
+    //    @Override
+    //    protected void processTextPosition(TextPosition text) {
+    //        super.processTextPosition(text);
+    //        PDColor color = getGraphicsState().getNonStrokingColor();
+    //        colorList.add(color);
+    //    }
+
+    /**
+     * Overrides the writeString method to process each word and related information.
+     *
+     * @param string         The string to be processed.
+     * @param textPositions  The list of TextPosition objects representing positions of the string in the PDF.
+     */
+    @Override
+    protected void writeString(String string, List<TextPosition> textPositions) {
+        // if does not ends with \n will combine next word using process
+        //line++;
+        int curPageNum = this.getCurrentPageNo();
+        if (previousPageNum != curPageNum){
+            System.out.println();
+            line = 1;
+            System.out.print(line +". ");
+            prevWordInfo = null;
+        }
+
+
+        String[] words = string.split(getWordSeparator());
+        int i = 0;
+
+        for (int m = 0; m<words.length; m++) {
+            String word = words[m];
+            if (!word.isEmpty() && textPositions.get(i).getFontSize() > 1) {
+
+                List<TextPosition> positions = new ArrayList<>();
+                int len = i+word.length();
+                for (int j = i; j < len; j++) {
+                    positions.add(textPositions.get(j));
+                }
+                WordInfo wordInfo = new WordInfo(word, positions);
+
+                boolean isSpace = false;
+                if (prevWordInfo != null) {
+                    if (prevWordInfo.getPosition() < wordInfo.getPosition()) {
+                        line++;
+                        System.out.println();
+                        System.out.print(line+". ");
+                    }else if (prevWordInfo.getPosition() == wordInfo.getPosition()){
+                        //if (m < words.length-1){
+                            isSpace = true;
+                        //}
+                    }
+                }
+
+
+                wordInfo.setLine(line);
+                wordInfo.setPageNumber(curPageNum);
+                int pageNum = modifyPageNum ? curPageNum - minPageNum + 1 : curPageNum;
+                wordInfo.setFinalPageNumber(pageNum);
+                PDColor color = getGraphicsState().getNonStrokingColor();
+                wordInfo.setColor(color);
+                wordList.add(wordInfo);
+
+
+                if (isSpace){
+                    System.out.print(" ");
+                }
+                System.out.print(word);
+
+
+                prevWordInfo = wordInfo;
+            }
+            i += word.length() + 1;
+        }
+        previousPageNum = curPageNum;
+    }
 
     /**
      * Adds color-related operators for text extraction.
