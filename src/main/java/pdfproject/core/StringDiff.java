@@ -172,63 +172,64 @@ public class StringDiff {
 
     private static boolean confirmAdd(List<WordInfo> words1, int i, List<WordInfo> words2, int j) {
         String curWord = words1.get(i).getWord();
+        String matchingWord = words2.get(j).getWord();
 
-
-        int s2 = words2.size();
-        // when secondWord is first part
-        if (j+1 < s2){
-            String secondWord = words2.get(j).getWord() + words2.get(j+1).getWord();
-            if (curWord.equals(secondWord)){
+        // Check if secondWord is the first part
+        if (j + 1 < words2.size()) {
+            String secondWord = matchingWord + words2.get(j + 1).getWord();
+            if (curWord.equals(secondWord)) {
                 return false;
             }
         }
 
-        // when secondWord is 2nd part
-
-        if (j != 0){
-            String secondWord = words2.get(j-1).getWord() + words2.get(j).getWord();
-            if (curWord.equals(secondWord)){
+        // Check if secondWord is the second part
+        if (j != 0) {
+            String secondWord = words2.get(j - 1).getWord() + matchingWord;
+            if (curWord.equals(secondWord)) {
                 return false;
             }
         }
 
-        if (i+2 > words1.size()){
+        // Check if this word is added when 1st page has parts of this word
+        if (i + 2 > words1.size()) {
             return true;
         }
-        String secondWord = words2.get(j).getWord();
-        String nextWord = words1.get(i+1).getWord();
-        return !(curWord + nextWord).equals(secondWord);
+
+        String nextWord = words1.get(i + 1).getWord();
+        return !(curWord + nextWord).equals(matchingWord);
     }
 
+    // what if these are edge cases for 20 batch
     private static boolean confirmDel(List<WordInfo> words1, int i, List<WordInfo> words2, int j) {
-        if (j == 0){
+        if (j == 0) {
             return true;
         }
-        String secondWord = words2.get(j-1).getWord();
-        int s1 = words1.size();
+
         String curWord = words1.get(i).getWord();
-        // when curWord is first part
-        if (i + 1 < s1){
-            String nextWord = words1.get(i+1).getWord(); // combine all and at the end re run the script
-            if((curWord + nextWord).equals(secondWord)){
+        String matchingWord = words2.get(j - 1).getWord();
+
+        // Check if curWord is the first part
+        if (i + 1 < words1.size()) {
+            String nextWord = words1.get(i + 1).getWord();
+            if ((curWord + nextWord).equals(matchingWord)) {
                 return false;
             }
         }
 
-        // when curWord is second part
-        if (i != 0){
-            String lastWord = words1.get(i-1).getWord();
-            if ((lastWord + curWord).equals(secondWord)){
+        // Check if curWord is the second part
+        if (i != 0) {
+            String lastWord = words1.get(i - 1).getWord();
+            if ((lastWord + curWord).equals(matchingWord)) {
                 return false;
             }
         }
 
-        // need to check if this word is deleted when 2nd page has parts of this word
-
-        if (j < 2){
+        // Check if this word is deleted when 2nd page has parts of this word
+        if (j < 2) {
             return true;
         }
-        secondWord = words2.get(j-2).getWord() + words2.get(j-1).getWord();
+
+        String secondWord = words2.get(j - 2).getWord() + matchingWord;
         return !curWord.equals(secondWord);
     }
 
