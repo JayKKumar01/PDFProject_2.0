@@ -15,6 +15,11 @@ import java.util.List;
 public class WordInfo {
     private final List<Operation> typeList = new ArrayList<>();
     private String word;
+
+    public void setWord(String word) {
+        this.word = word;
+    }
+
     private String info;
     private List<TextPosition> positions;
     private int pageNumber;

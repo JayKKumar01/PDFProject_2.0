@@ -11,6 +11,7 @@ import pdfproject.models.WordInfo;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -27,6 +28,8 @@ public class PDFWordExtractor extends PDFTextStripper {
     private int previousPageNum = 0;
     private WordInfo prevWordInfo;
 
+    private static final String TEST_WORD = "brought";
+    private static boolean Tested = false;
     /**
      * Constructs a PDFWordExtractor for the specified file and pages.
      *
@@ -99,12 +102,11 @@ public class PDFWordExtractor extends PDFTextStripper {
         String[] words = string.split(getWordSeparator());
         int i = 0;
 
-        for (int m = 0; m<words.length; m++) {
-            String word = words[m];
+        for (String word : words) {
             if (!word.isEmpty() && textPositions.get(i).getFontSize() > 1) {
 
                 List<TextPosition> positions = new ArrayList<>();
-                int len = i+word.length();
+                int len = i + word.length();
                 for (int j = i; j < len; j++) {
                     positions.add(textPositions.get(j));
                 }
@@ -121,7 +123,15 @@ public class PDFWordExtractor extends PDFTextStripper {
                 wordInfo.setPageNumber(curPageNum);
                 int pageNum = modifyPageNum ? curPageNum - minPageNum + 1 : curPageNum;
                 wordInfo.setFinalPageNumber(pageNum);
-                wordList.add(wordInfo);
+                if (!Tested && wordInfo.getWord().equals(TEST_WORD)){ //last.same line, no gap
+                    Tested = true;
+                    List<WordInfo> list = parts(wordInfo);
+                    wordList.add(list.get(0));
+                    wordList.add(list.get(1));
+
+                }else {
+                    wordList.add(wordInfo);
+                }
 
 
                 prevWordInfo = wordInfo;
@@ -129,6 +139,36 @@ public class PDFWordExtractor extends PDFTextStripper {
             i += word.length() + 1;
         }
         previousPageNum = curPageNum;
+    }
+
+    private List<WordInfo> parts(WordInfo wordInfo) {
+        int len = wordInfo.getWord().length();
+
+        List<TextPosition> p = wordInfo.getPositions();
+        List<TextPosition> p1 = new ArrayList<>();
+        List<TextPosition> p2 = new ArrayList<>();
+
+        for (int i = 0; i<len; i++){
+            TextPosition textPosition = p.get(i);
+            if (i<len/2) {
+                p1.add(textPosition);
+            }else {
+                p2.add(textPosition);
+            }
+        }
+        List<WordInfo> list = new ArrayList<>();
+        WordInfo w1 = new WordInfo(wordInfo.getWord().substring(0,len/2),p1);
+        w1.setLine(wordInfo.getLine());
+        w1.setPageNumber(wordInfo.getPageNumber());
+        w1.setFinalPageNumber(wordInfo.getFinalPageNumber());
+        list.add(w1);
+
+        WordInfo w2 = new WordInfo(wordInfo.getWord().substring(len/2,len),p2);
+        w2.setLine(wordInfo.getLine());
+        w2.setPageNumber(wordInfo.getPageNumber());
+        w2.setFinalPageNumber(wordInfo.getFinalPageNumber());
+        list.add(w2);
+        return list;
     }
 
     /**

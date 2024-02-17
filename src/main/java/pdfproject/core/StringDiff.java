@@ -126,18 +126,23 @@ public class StringDiff {
                 i--;
                 j--;
             } else if (LCSuffix[i - 1][j] > LCSuffix[i][j - 1]) {
-                gotEqual = false;
-                wordInfo1.addType(Operation.DELETED);
-                String info = Base.getInfo(Operation.DELETED, wordInfo1);
-                wordInfo1.setInfo(info);
-                resultDel.add(wordInfo1);
+                if (confirmDel(words1,m-i,words2,n-j)){
+                    gotEqual = false;
+                    wordInfo1.addType(Operation.DELETED);
+                    String info = Base.getInfo(Operation.DELETED, wordInfo1);
+                    wordInfo1.setInfo(info);
+                    resultDel.add(wordInfo1);
+                }
+
                 i--;
             } else {
-                gotEqual = false;
-                wordInfo2.addType(Operation.ADDED);
-                String info = Base.getInfo(Operation.ADDED, wordInfo2);
-                wordInfo2.setInfo(info);
-                resultAdd.add(wordInfo2);
+                if (confirmAdd(words1,m-i,words2,n-j)) {
+                    gotEqual = false;
+                    wordInfo2.addType(Operation.ADDED);
+                    String info = Base.getInfo(Operation.ADDED, wordInfo2);
+                    wordInfo2.setInfo(info);
+                    resultAdd.add(wordInfo2);
+                }
                 j--;
             }
         }
@@ -161,6 +166,48 @@ public class StringDiff {
         }
 
         return new CustomList(resultEql, resultDel, resultAdd);
+    }
+
+
+
+    private static boolean confirmAdd(List<WordInfo> words1, int i, List<WordInfo> words2, int j) {
+        int s1 = words1.size();
+        if (s1 == 0 || i < 0 || i+2 > s1){
+            return true;
+        }
+        String secondWord = words2.get(j).getWord();
+
+
+        String curWord = words1.get(i).getWord();
+        String nextWord = words1.get(i+1).getWord();
+        return !(curWord + nextWord).equals(secondWord);
+    }
+
+    private static boolean confirmDel(List<WordInfo> words1, int i, List<WordInfo> words2, int j) {
+        int s2 = words2.size();
+        if (s2 == 0 || j == 0 || j > s2){
+            return true;
+        }
+        String secondWord = words2.get(j-1).getWord();
+        int s1 = words1.size();
+        String curWord = words1.get(i).getWord();
+        // when curWord is first part
+        if (i + 1 < s1){
+            String nextWord = words1.get(i+1).getWord(); // combine all and at the end re run the script
+            if((curWord + nextWord).equals(secondWord)){
+                return false;
+            }
+        }
+
+        // when curWord is second part
+        if (i != 0){
+            String lastWord = words1.get(i-1).getWord();
+            return !(lastWord + curWord).equals(secondWord);
+        }
+
+        // need to check if this word is deleted when 2nd page has parts of this word
+
+        return true;
     }
 
     /**
