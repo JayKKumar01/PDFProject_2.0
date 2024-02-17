@@ -20,7 +20,6 @@ public class WordInfo {
     private int pageNumber;
     private int finalPageNumber = -1;
     private int line = -1;
-    private PDColor color;
     private boolean shouldCheck = true;
 
     // Constructors
@@ -97,14 +96,6 @@ public class WordInfo {
 
     public void setPageNumber(int pageNumber) {
         this.pageNumber = pageNumber;
-    }
-
-    public PDColor getColor() {
-        return color;
-    }
-
-    public void setColor(PDColor color) {
-        this.color = color;
     }
 
     // Text Position and Font-related methods

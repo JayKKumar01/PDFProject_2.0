@@ -69,7 +69,6 @@ public class PDFWordExtractor extends PDFTextStripper {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println();
         return wordList;
     }
 
@@ -90,13 +89,9 @@ public class PDFWordExtractor extends PDFTextStripper {
      */
     @Override
     protected void writeString(String string, List<TextPosition> textPositions) {
-        // if does not ends with \n will combine next word using process
-        //line++;
         int curPageNum = this.getCurrentPageNo();
         if (previousPageNum != curPageNum){
-            System.out.println();
             line = 1;
-            System.out.print(line +". ");
             prevWordInfo = null;
         }
 
@@ -115,16 +110,9 @@ public class PDFWordExtractor extends PDFTextStripper {
                 }
                 WordInfo wordInfo = new WordInfo(word, positions);
 
-                boolean isSpace = false;
                 if (prevWordInfo != null) {
                     if (prevWordInfo.getPosition() < wordInfo.getPosition()) {
                         line++;
-                        System.out.println();
-                        System.out.print(line+". ");
-                    }else if (prevWordInfo.getPosition() == wordInfo.getPosition()){
-                        //if (m < words.length-1){
-                            isSpace = true;
-                        //}
                     }
                 }
 
@@ -133,15 +121,7 @@ public class PDFWordExtractor extends PDFTextStripper {
                 wordInfo.setPageNumber(curPageNum);
                 int pageNum = modifyPageNum ? curPageNum - minPageNum + 1 : curPageNum;
                 wordInfo.setFinalPageNumber(pageNum);
-                PDColor color = getGraphicsState().getNonStrokingColor();
-                wordInfo.setColor(color);
                 wordList.add(wordInfo);
-
-
-                if (isSpace){
-                    System.out.print(" ");
-                }
-                System.out.print(word);
 
 
                 prevWordInfo = wordInfo;
