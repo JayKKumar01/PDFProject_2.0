@@ -13,6 +13,7 @@ public class Config {
      * Specifies the batch size for word comparison, influencing processing speed.
      * Adjust this to optimize calculation speed.
      */
+//    public static final int WORD_BATCH_SIZE_FOR_COMPARISON = 7; // something wrong here
     public static final int WORD_BATCH_SIZE_FOR_COMPARISON = 20;
 
     /**

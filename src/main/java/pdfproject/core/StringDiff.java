@@ -178,7 +178,11 @@ public class StringDiff {
         if (j + 1 < words2.size()) {
             String secondWord = matchingWord + words2.get(j + 1).getWord();
             if (curWord.equals(secondWord)) {
-                return false;
+                WordInfo w1 = words2.get(j);
+                WordInfo w2 = words2.get(j+1);
+                if (w1.getLine() == w2.getLine()) {
+                    return false;
+                }
             }
         }
 
@@ -186,7 +190,11 @@ public class StringDiff {
         if (j != 0) {
             String secondWord = words2.get(j - 1).getWord() + matchingWord;
             if (curWord.equals(secondWord)) {
-                return false;
+                WordInfo w1 = words2.get(j-1);
+                WordInfo w2 = words2.get(j);
+                if (w1.getLine() == w2.getLine()) {
+                    return false;
+                }
             }
         }
 
@@ -196,10 +204,15 @@ public class StringDiff {
         }
 
         String nextWord = words1.get(i + 1).getWord();
-        return !(curWord + nextWord).equals(matchingWord);
+        if ((curWord + nextWord).equals(matchingWord)) {
+            WordInfo w1 = words1.get(i);
+            WordInfo w2 = words1.get(i + 1);
+            return w1.getLine() != w2.getLine();
+        }
+        return true;
     }
 
-    // what if these are edge cases for 20 batch
+    // what if these are edge cases for 20 batch, check if words are not in same line
     private static boolean confirmDel(List<WordInfo> words1, int i, List<WordInfo> words2, int j) {
         if (j == 0) {
             return true;
@@ -212,7 +225,12 @@ public class StringDiff {
         if (i + 1 < words1.size()) {
             String nextWord = words1.get(i + 1).getWord();
             if ((curWord + nextWord).equals(matchingWord)) {
-                return false;
+
+                WordInfo w1 = words1.get(i);
+                WordInfo w2 = words1.get(i+1);
+                if (w1.getLine() == w2.getLine()) {
+                    return false;
+                }
             }
         }
 
@@ -220,7 +238,11 @@ public class StringDiff {
         if (i != 0) {
             String lastWord = words1.get(i - 1).getWord();
             if ((lastWord + curWord).equals(matchingWord)) {
-                return false;
+                WordInfo w1 = words1.get(i-1);
+                WordInfo w2 = words1.get(i);
+                if (w1.getLine() == w2.getLine()) {
+                    return false;
+                }
             }
         }
 
@@ -230,7 +252,12 @@ public class StringDiff {
         }
 
         String secondWord = words2.get(j - 2).getWord() + matchingWord;
-        return !curWord.equals(secondWord);
+        if (curWord.equals(secondWord)){
+            WordInfo w1 = words2.get(j-2);
+            WordInfo w2 = words2.get(j-1);
+            return w1.getLine() != w2.getLine();
+        }
+        return true;
     }
 
     /**
