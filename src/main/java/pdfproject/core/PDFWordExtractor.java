@@ -123,15 +123,7 @@ public class PDFWordExtractor extends PDFTextStripper {
                 wordInfo.setPageNumber(curPageNum);
                 int pageNum = modifyPageNum ? curPageNum - minPageNum + 1 : curPageNum;
                 wordInfo.setFinalPageNumber(pageNum);
-                if (!Tested && wordInfo.getWord().equals(TEST_WORD)){ //last.same line, no gap
-                    Tested = true;
-                    List<WordInfo> list = parts(wordInfo);
-                    wordList.add(list.get(0));
-                    wordList.add(list.get(1));
-
-                }else {
-                    wordList.add(wordInfo);
-                }
+                wordList.add(wordInfo);
 
 
                 prevWordInfo = wordInfo;
@@ -139,36 +131,6 @@ public class PDFWordExtractor extends PDFTextStripper {
             i += word.length() + 1;
         }
         previousPageNum = curPageNum;
-    }
-
-    private List<WordInfo> parts(WordInfo wordInfo) {
-        int len = wordInfo.getWord().length();
-
-        List<TextPosition> p = wordInfo.getPositions();
-        List<TextPosition> p1 = new ArrayList<>();
-        List<TextPosition> p2 = new ArrayList<>();
-
-        for (int i = 0; i<len; i++){
-            TextPosition textPosition = p.get(i);
-            if (i<len/2) {
-                p1.add(textPosition);
-            }else {
-                p2.add(textPosition);
-            }
-        }
-        List<WordInfo> list = new ArrayList<>();
-        WordInfo w1 = new WordInfo(wordInfo.getWord().substring(0,len/2),p1);
-        w1.setLine(wordInfo.getLine());
-        w1.setPageNumber(wordInfo.getPageNumber());
-        w1.setFinalPageNumber(wordInfo.getFinalPageNumber());
-        list.add(w1);
-
-        WordInfo w2 = new WordInfo(wordInfo.getWord().substring(len/2,len),p2);
-        w2.setLine(wordInfo.getLine());
-        w2.setPageNumber(wordInfo.getPageNumber());
-        w2.setFinalPageNumber(wordInfo.getFinalPageNumber());
-        list.add(w2);
-        return list;
     }
 
     /**

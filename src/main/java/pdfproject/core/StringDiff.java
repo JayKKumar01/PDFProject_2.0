@@ -171,8 +171,7 @@ public class StringDiff {
 
 
     private static boolean confirmAdd(List<WordInfo> words1, int i, List<WordInfo> words2, int j) {
-        int s1 = words1.size();
-        if (s1 == 0 || i < 0 || i+2 > s1){
+        if (i+2 > words1.size()){
             return true;
         }
         String secondWord = words2.get(j).getWord();
@@ -184,8 +183,7 @@ public class StringDiff {
     }
 
     private static boolean confirmDel(List<WordInfo> words1, int i, List<WordInfo> words2, int j) {
-        int s2 = words2.size();
-        if (s2 == 0 || j == 0 || j > s2){
+        if (j == 0){
             return true;
         }
         String secondWord = words2.get(j-1).getWord();
@@ -202,12 +200,18 @@ public class StringDiff {
         // when curWord is second part
         if (i != 0){
             String lastWord = words1.get(i-1).getWord();
-            return !(lastWord + curWord).equals(secondWord);
+            if ((lastWord + curWord).equals(secondWord)){
+                return false;
+            }
         }
 
         // need to check if this word is deleted when 2nd page has parts of this word
 
-        return true;
+        if (j < 2){
+            return true;
+        }
+        secondWord = words2.get(j-2).getWord() + words2.get(j-1).getWord();
+        return !curWord.equals(secondWord);
     }
 
     /**
