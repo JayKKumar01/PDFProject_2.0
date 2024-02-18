@@ -178,6 +178,14 @@ public class StringDiff {
                 retry = true;
             }
         }
+        itr = words2.iterator();
+        while (itr.hasNext()){
+            WordInfo wordInfo = itr.next();
+            if (wordInfo.isShouldRemove()){
+                itr.remove();
+                retry = true;
+            }
+        }
         if (retry){
             return getList(words1,words2);
         }
@@ -188,48 +196,23 @@ public class StringDiff {
 
 
     private static boolean confirmAdd(List<WordInfo> words1, int i, List<WordInfo> words2, int j) {
-        boolean x = true;
-        if (x){
-            return true;
-        }
-        String curWord = words1.get(i).getWord();
-        String matchingWord = words2.get(j).getWord();
-
-        // Check if secondWord is the first part
-        if (j + 1 < words2.size()) {
-            String secondWord = matchingWord + words2.get(j + 1).getWord();
-            if (curWord.equals(secondWord)) {
-                WordInfo w1 = words2.get(j);
-                WordInfo w2 = words2.get(j+1);
-                if (w1.getLine() == w2.getLine()) {
-                    return false;
-                }
-            }
-        }
-
-        // Check if secondWord is the second part
-        if (j != 0) {
-            String secondWord = words2.get(j - 1).getWord() + matchingWord;
-            if (curWord.equals(secondWord)) {
-                WordInfo w1 = words2.get(j-1);
-                WordInfo w2 = words2.get(j);
-                if (w1.getLine() == w2.getLine()) {
-                    return false;
-                }
-            }
-        }
 
         // Check if this word is added when 1st page has parts of this word
         if (i + 2 > words1.size()) {
             return true;
         }
+        String matchingWord = words2.get(j).getWord();
 
-        String nextWord = words1.get(i + 1).getWord();
-        if ((curWord + nextWord).equals(matchingWord)) {
+        WordInfo w1 = words1.get(i);
+        WordInfo w2 = words1.get(i + 1);
 
-            WordInfo w1 = words1.get(i);
-            WordInfo w2 = words1.get(i + 1);
-            return w1.getLine() != w2.getLine();
+        if ((w1.getWord() + w2.getWord()).equals(matchingWord)) {
+
+            if (w1.getLine() == w2.getLine()){
+                w1.updateDelAdd(w2);
+                w2.setShouldRemove(true);
+                return false;
+            }
         }
         return true;
     }
@@ -237,53 +220,23 @@ public class StringDiff {
     // what if these are edge cases for 20 batch, check if words are not in same line
     private static boolean confirmDel(List<WordInfo> words1, int i, List<WordInfo> words2, int j) {
 
-        if (j == 0) {
-            return true;
-        }
-
-
-        String matchingWord = words2.get(j - 1).getWord();
         WordInfo wordInfo = words1.get(i);
         String curWord = wordInfo.getWord();
 
-        // Check if curWord is the first part
-        if (i + 1 < words1.size()) {
-            WordInfo nextWordInfo = words1.get(i+1);
-            String nextWord = nextWordInfo.getWord();
-            if ((curWord + nextWord).equals(matchingWord)) {
-
-                WordInfo w2 = words1.get(i+1);
-                if (wordInfo.getLine() == w2.getLine()) {
-                    wordInfo.updateDel(nextWordInfo);
-                    nextWordInfo.setShouldRemove(true);
-                    return false;
-                }
-            }
+        if (j < 2) {
+            return true;
         }
 
-        // Check if curWord is the second part
-//        if (i != 0) {
-//            String lastWord = words1.get(i - 1).getWord();
-//            if ((lastWord + curWord).equals(matchingWord)) {
-//                WordInfo w1 = words1.get(i-1);
-//                if (w1.getLine() == wordInfo.getLine()) {
-//                    wordInfo.setShouldRemove(true);
-//                    //return false;
-//                }
-//            }
-//        }
-
-        // Check if this word is deleted when 2nd page has parts of this word
-//        if (j < 2) {
-//            return true;
-//        }
-//
-//        String secondWord = words2.get(j - 2).getWord() + matchingWord;
-//        if (curWord.equals(secondWord)){
-//            WordInfo w1 = words2.get(j-2);
-//            WordInfo w2 = words2.get(j-1);
-//            return w1.getLine() != w2.getLine();
-//        }
+        WordInfo w1 = words2.get(j - 2);
+        WordInfo w2 = words2.get(j - 1);
+        String secondWord = w1.getWord() + w2.getWord();
+        if (curWord.equals(secondWord)){
+            if (w1.getLine() == w2.getLine()){
+                w1.updateDelAdd(w2);
+                w2.setShouldRemove(true);
+                return false;
+            }
+        }
         return true;
     }
 

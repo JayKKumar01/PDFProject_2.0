@@ -42,6 +42,8 @@ public class WordInfo {
     // Accessors and Mutators
 
 
+
+
     public boolean isShouldRemove() {
         return shouldRemove;
     }
@@ -177,7 +179,7 @@ public class WordInfo {
         return typeList.get(0).name() + ": " + word;
     }
 
-    public void updateDel(WordInfo nextWordInfo) {
+    public void updateDelAdd(WordInfo nextWordInfo) {
         this.word += nextWordInfo.getWord();
         this.getPositions().addAll(nextWordInfo.getPositions());
     }
