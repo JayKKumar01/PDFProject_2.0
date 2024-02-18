@@ -49,7 +49,7 @@ public class StringDiff {
                     list.add(wordInfo);
                 }
             }
-            list1.addAll(words1.subList(a, a + m));
+            list1.addAll(words1.subList(a, a + m)); // send original words1 and words2 also along with index
 
             List<WordInfo> list2 = new ArrayList<>();
             for (WordInfo wordInfo : listAdd) {
@@ -61,6 +61,8 @@ public class StringDiff {
             }
             list2.addAll(words2.subList(b, b + n));
             CustomList customList = getList(list1, list2);
+
+
 
             list.addAll(customList.getResultEql());
             listDel = customList.getResultDel();
@@ -148,6 +150,7 @@ public class StringDiff {
         }
 
         while (i > 0) {
+            // confirm del here also, use refresh list after detecting issue
             WordInfo wordInfo1 = words1.get(m - i);
             wordInfo1.addType(Operation.DELETED);
             String info = Base.getInfo(Operation.DELETED, wordInfo1);
@@ -205,6 +208,12 @@ public class StringDiff {
 
         String nextWord = words1.get(i + 1).getWord();
         if ((curWord + nextWord).equals(matchingWord)) {
+
+//            if (matchingWord.equals("pomaceous")){
+//                words1.get(i+1).setWord(matchingWord);
+//                System.out.println(curWord+"::"+nextWord);
+//            }
+
             WordInfo w1 = words1.get(i);
             WordInfo w2 = words1.get(i + 1);
             return w1.getLine() != w2.getLine();
@@ -214,12 +223,14 @@ public class StringDiff {
 
     // what if these are edge cases for 20 batch, check if words are not in same line
     private static boolean confirmDel(List<WordInfo> words1, int i, List<WordInfo> words2, int j) {
+
         if (j == 0) {
             return true;
         }
 
-        String curWord = words1.get(i).getWord();
+
         String matchingWord = words2.get(j - 1).getWord();
+        String curWord = words1.get(i).getWord();
 
         // Check if curWord is the first part
         if (i + 1 < words1.size()) {
