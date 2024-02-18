@@ -209,6 +209,7 @@ public class StringDiff {
         if ((w1.getWord() + w2.getWord()).equals(matchingWord)) {
 
             if (w1.getLine() == w2.getLine()){
+                System.out.println("confirmAdd: "+matchingWord);
                 w1.updateDelAdd(w2);
                 w2.setShouldRemove(true);
                 return false;
@@ -232,6 +233,7 @@ public class StringDiff {
         String secondWord = w1.getWord() + w2.getWord();
         if (curWord.equals(secondWord)){
             if (w1.getLine() == w2.getLine()){
+                System.out.println("confirmDel: "+curWord);
                 w1.updateDelAdd(w2);
                 w2.setShouldRemove(true);
                 return false;
