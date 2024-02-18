@@ -5,6 +5,7 @@ import pdfproject.models.WordInfo;
 import pdfproject.utils.Base;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static pdfproject.Config.WORD_BATCH_SIZE_FOR_COMPARISON;
@@ -86,6 +87,7 @@ public class StringDiff {
      * @return CustomList containing equal, deleted, and added WordInfo objects.
      */
     public static CustomList getList(List<WordInfo> words1, List<WordInfo> words2) {
+        boolean retry = false;
         int m = words1.size();
         int n = words2.size();
 
@@ -128,7 +130,8 @@ public class StringDiff {
                 i--;
                 j--;
             } else if (LCSuffix[i - 1][j] > LCSuffix[i][j - 1]) {
-                if (confirmDel(words1,m-i,words2,n-j)){
+
+                if(confirmDel(words1,m-i,words2,n-j)) {
                     gotEqual = false;
                     wordInfo1.addType(Operation.DELETED);
                     String info = Base.getInfo(Operation.DELETED, wordInfo1);
@@ -167,6 +170,17 @@ public class StringDiff {
             resultAdd.add(wordInfo2);
             j--;
         }
+        Iterator<WordInfo> itr = words1.iterator();
+        while (itr.hasNext()){
+            WordInfo wordInfo = itr.next();
+            if (wordInfo.isShouldRemove()){
+                itr.remove();
+                retry = true;
+            }
+        }
+        if (retry){
+            return getList(words1,words2);
+        }
 
         return new CustomList(resultEql, resultDel, resultAdd);
     }
@@ -174,6 +188,10 @@ public class StringDiff {
 
 
     private static boolean confirmAdd(List<WordInfo> words1, int i, List<WordInfo> words2, int j) {
+        boolean x = true;
+        if (x){
+            return true;
+        }
         String curWord = words1.get(i).getWord();
         String matchingWord = words2.get(j).getWord();
 
@@ -209,11 +227,6 @@ public class StringDiff {
         String nextWord = words1.get(i + 1).getWord();
         if ((curWord + nextWord).equals(matchingWord)) {
 
-//            if (matchingWord.equals("pomaceous")){
-//                words1.get(i+1).setWord(matchingWord);
-//                System.out.println(curWord+"::"+nextWord);
-//            }
-
             WordInfo w1 = words1.get(i);
             WordInfo w2 = words1.get(i + 1);
             return w1.getLine() != w2.getLine();
@@ -230,44 +243,47 @@ public class StringDiff {
 
 
         String matchingWord = words2.get(j - 1).getWord();
-        String curWord = words1.get(i).getWord();
+        WordInfo wordInfo = words1.get(i);
+        String curWord = wordInfo.getWord();
 
         // Check if curWord is the first part
         if (i + 1 < words1.size()) {
-            String nextWord = words1.get(i + 1).getWord();
+            WordInfo nextWordInfo = words1.get(i+1);
+            String nextWord = nextWordInfo.getWord();
             if ((curWord + nextWord).equals(matchingWord)) {
 
-                WordInfo w1 = words1.get(i);
                 WordInfo w2 = words1.get(i+1);
-                if (w1.getLine() == w2.getLine()) {
+                if (wordInfo.getLine() == w2.getLine()) {
+                    wordInfo.updateDel(nextWordInfo);
+                    nextWordInfo.setShouldRemove(true);
                     return false;
                 }
             }
         }
 
         // Check if curWord is the second part
-        if (i != 0) {
-            String lastWord = words1.get(i - 1).getWord();
-            if ((lastWord + curWord).equals(matchingWord)) {
-                WordInfo w1 = words1.get(i-1);
-                WordInfo w2 = words1.get(i);
-                if (w1.getLine() == w2.getLine()) {
-                    return false;
-                }
-            }
-        }
+//        if (i != 0) {
+//            String lastWord = words1.get(i - 1).getWord();
+//            if ((lastWord + curWord).equals(matchingWord)) {
+//                WordInfo w1 = words1.get(i-1);
+//                if (w1.getLine() == wordInfo.getLine()) {
+//                    wordInfo.setShouldRemove(true);
+//                    //return false;
+//                }
+//            }
+//        }
 
         // Check if this word is deleted when 2nd page has parts of this word
-        if (j < 2) {
-            return true;
-        }
-
-        String secondWord = words2.get(j - 2).getWord() + matchingWord;
-        if (curWord.equals(secondWord)){
-            WordInfo w1 = words2.get(j-2);
-            WordInfo w2 = words2.get(j-1);
-            return w1.getLine() != w2.getLine();
-        }
+//        if (j < 2) {
+//            return true;
+//        }
+//
+//        String secondWord = words2.get(j - 2).getWord() + matchingWord;
+//        if (curWord.equals(secondWord)){
+//            WordInfo w1 = words2.get(j-2);
+//            WordInfo w2 = words2.get(j-1);
+//            return w1.getLine() != w2.getLine();
+//        }
         return true;
     }
 

@@ -16,16 +16,13 @@ public class WordInfo {
     private final List<Operation> typeList = new ArrayList<>();
     private String word;
 
-    public void setWord(String word) {
-        this.word = word;
-    }
-
     private String info;
     private List<TextPosition> positions;
     private int pageNumber;
     private int finalPageNumber = -1;
     private int line = -1;
     private boolean shouldCheck = true;
+    private boolean shouldRemove;
 
     // Constructors
     public WordInfo(String word) {
@@ -44,6 +41,14 @@ public class WordInfo {
 
     // Accessors and Mutators
 
+
+    public boolean isShouldRemove() {
+        return shouldRemove;
+    }
+
+    public void setShouldRemove(boolean shouldRemove) {
+        this.shouldRemove = shouldRemove;
+    }
 
     public int getLine() {
         return line;
@@ -170,5 +175,10 @@ public class WordInfo {
     @Override
     public String toString() {
         return typeList.get(0).name() + ": " + word;
+    }
+
+    public void updateDel(WordInfo nextWordInfo) {
+        this.word += nextWordInfo.getWord();
+        this.getPositions().addAll(nextWordInfo.getPositions());
     }
 }
