@@ -63,6 +63,19 @@ public class PDFProject {
         List<WordInfo> list1 = PDFUtil.WordList(pdf1, pagesPDF1);
         List<WordInfo> list2 = PDFUtil.WordList(pdf2, pagesPDF2);
 
+        for (WordInfo wordInfo: list1){
+            System.out.println(wordInfo.getLine()+". "+wordInfo.getWord());
+        }
+        System.out.println();
+
+        for (WordInfo wordInfo: list2){
+            System.out.println(wordInfo.getLine()+". "+wordInfo.getWord());
+        }
+
+        boolean x = true;
+        if (x){
+            return false;
+        }
 
 
         List<WordInfo> list = StringDiff.List(list1, list2);
@@ -103,6 +116,8 @@ public class PDFProject {
         }
         return true;
     }
+
+
 
     /**
      * Checks if the provided PDF files are valid for comparison.

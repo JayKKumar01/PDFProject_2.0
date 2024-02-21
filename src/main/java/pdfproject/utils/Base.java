@@ -1,20 +1,54 @@
 package pdfproject.utils;
 
 import org.apache.poi.ss.usermodel.IndexedColors;
-import org.apache.poi.xssf.usermodel.IndexedColorMap;
-import org.apache.poi.xssf.usermodel.XSSFColor;
-import pdfproject.Config;
 import pdfproject.Config.Colors;
 import pdfproject.enums.Constants;
 import pdfproject.models.WordInfo;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
  * Utility class providing various helper methods for PDF project.
  */
 public class Base {
+
+    public static void transformList(List<WordInfo> inputList, int curIndex) {
+        int size = inputList.size();
+        if (size - curIndex < 2){
+            return;
+        }
+        Iterator<WordInfo> itr = inputList.iterator();
+        for (int i=0; i<curIndex; i++){
+            itr.next();
+        }
+        WordInfo prev = itr.next();
+        WordInfo last = inputList.get(size-1);
+        if (prev.getPosition() < last.getPosition()){
+            return;
+        }
+        int line = last.getLine()+1;
+        List<WordInfo> list = new ArrayList<>();
+        prev.setLine(line);
+        list.add(prev);
+        itr.remove();
+        while (itr.hasNext()){
+            WordInfo current = itr.next();
+
+            if (prev.getPosition() > current.getPosition()){
+                break;
+            }
+            if (prev.getPosition() < current.getPosition()){
+                line++;
+            }
+            current.setLine(line);
+            list.add(current);
+            itr.remove();
+        }
+        inputList.addAll(list);
+    }
 
     /**
      * Gets color based on a list of operations.

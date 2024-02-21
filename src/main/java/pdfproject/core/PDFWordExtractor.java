@@ -7,6 +7,7 @@ import org.apache.pdfbox.pdmodel.graphics.color.PDColor;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.text.TextPosition;
 import pdfproject.models.WordInfo;
+import pdfproject.utils.Base;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,17 +48,22 @@ public class PDFWordExtractor extends PDFTextStripper {
             maxPageNum = Math.max(maxPageNum, pageNum);
             minPageNum = Math.min(minPageNum, pageNum);
         }
-        this.setSortByPosition(true);
+//        this.setSortByPosition(true);
 
         if (pages.isEmpty()) {
-            this.getText(document);
+            for (int i = 1; i<=document.getNumberOfPages(); i++){
+                pages.add(i);
+            }
         } else {
             modifyPageNum = true;
-            for (int page : pages) {
-                this.setStartPage(page);
-                this.setEndPage(page);
-                this.getText(document);
-            }
+        }
+        int curIndex = 0;
+        for (int page : pages) {
+            this.setStartPage(page);
+            this.setEndPage(page);
+            this.getText(document);
+            Base.transformList(wordList,curIndex);
+            curIndex += wordList.size();
         }
     }
 
