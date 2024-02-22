@@ -24,9 +24,16 @@ public class Base {
         for (int i=0; i<curIndex; i++){
             itr.next();
         }
-        WordInfo prev = itr.next();
+        WordInfo prev = null;
         WordInfo last = inputList.get(size-1);
-        if (prev.getPosition() < last.getPosition()){
+        while (itr.hasNext()){
+            prev = itr.next();
+            if (prev.getPosition() > last.getPosition()){
+                break;
+            }
+        }
+
+        if (prev == null){
             return;
         }
         int line = last.getLine()+1;
@@ -46,6 +53,7 @@ public class Base {
             current.setLine(line);
             list.add(current);
             itr.remove();
+            prev = current;
         }
         inputList.addAll(list);
     }
