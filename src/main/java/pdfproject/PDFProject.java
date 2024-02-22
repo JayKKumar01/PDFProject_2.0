@@ -53,29 +53,15 @@ public class PDFProject {
      * Initiates the comparison process, identifies differences, and applies modifications.
      */
     public boolean compare() {
-//        if (!isValid()) {
-//            System.out.println("Input Data is not Valid!");
-//            return false;
-//        }
+        if (!isValid()) {
+            System.out.println("Input Data is not Valid!");
+            return false;
+        }
 
         // Extracting WordInfo lists for each PDF and finding differences
 
         List<WordInfo> list1 = PDFUtil.WordList(pdf1, pagesPDF1);
         List<WordInfo> list2 = PDFUtil.WordList(pdf2, pagesPDF2);
-
-        for (WordInfo wordInfo: list1){
-            System.out.println(wordInfo.getLine()+". "+wordInfo.getWord());
-        }
-        System.out.println();
-
-        for (WordInfo wordInfo: list2){
-            System.out.println(wordInfo.getLine()+". "+wordInfo.getWord());
-        }
-
-        boolean x = true;
-        if (x){
-            return false;
-        }
 
 
         List<WordInfo> list = StringDiff.List(list1, list2);
