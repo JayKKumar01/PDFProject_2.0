@@ -118,8 +118,17 @@ public class InfoDocUtil {
                     contentStream.beginText();
                     contentStream.setTextMatrix(Matrix.getTranslateInstance(20, yLimit));
                     contentStream.setNonStrokingColor(Color.BLACK);
-                    contentStream.setFont(PDType1Font.TIMES_ROMAN, 12);
-                    contentStream.showText(in.getSentence());
+
+                    try {
+                        contentStream.setFont(PDType1Font.TIMES_ROMAN, 12);
+                        contentStream.showText(in.getSentence());
+                    } catch (IOException e) {
+                        System.out.println("Error: \""+in.getSentence()+"\" can't be written!");
+                        contentStream.setNonStrokingColor(Color.DARK_GRAY);
+                        contentStream.showText("-->FONT UNAVAILABLE<--");
+                        contentStream.setNonStrokingColor(Color.BLACK);
+                    }
+
 
                     contentStream.setNonStrokingColor(in.getColor());
                     contentStream.setFont(PDType1Font.TIMES_ROMAN, 10);

@@ -26,9 +26,11 @@ public class Base {
         }
         WordInfo prev = null;
         WordInfo last = inputList.get(size-1);
+        int footerY = Integer.MAX_VALUE;
         while (itr.hasNext()){
             prev = itr.next();
             if (prev.getPosition() > last.getPosition()){
+                footerY = prev.getPosition();
                 break;
             }
         }
@@ -44,7 +46,7 @@ public class Base {
         while (itr.hasNext()){
             WordInfo current = itr.next();
 
-            if (prev.getPosition() > current.getPosition()){
+            if (footerY > current.getPosition()){
                 break;
             }
             if (prev.getPosition() < current.getPosition()){
