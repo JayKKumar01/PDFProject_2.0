@@ -23,6 +23,7 @@ public class WordInfo {
     private int line = -1;
     private boolean shouldCheck = true;
     private boolean shouldRemove;
+    private boolean footer;
 
     // Constructors
     public WordInfo(String word) {
@@ -42,7 +43,13 @@ public class WordInfo {
     // Accessors and Mutators
 
 
+    public boolean isFooter() {
+        return footer;
+    }
 
+    public void setFooter(boolean footer) {
+        this.footer = footer;
+    }
 
     public boolean isShouldRemove() {
         return shouldRemove;
@@ -84,6 +91,9 @@ public class WordInfo {
     }
 
     public void addType(Operation type) {
+        if (!typeList.isEmpty() && (typeList.get(0) == type)){
+            typeList.clear();
+        }
         if ((type == Operation.EQUAL || type == Operation.ADDED || type == Operation.DELETED) && !typeList.isEmpty()){
             typeList.clear();
         }

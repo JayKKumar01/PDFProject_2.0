@@ -212,6 +212,10 @@ public class StringDiff {
                 w1.updateDelAdd(w2);
                 w2.setShouldRemove(true);
                 return false;
+            }else if (w1.getWord().endsWith("-") || w2.getWord().startsWith("-")){
+                w1.updateDelAdd(w2);
+                w2.setShouldRemove(true);
+                return false;
             }
         }
         return true;
@@ -232,6 +236,10 @@ public class StringDiff {
         String secondWord = w1.getWord() + w2.getWord();
         if (curWord.equals(secondWord)){
             if (w1.getLine() == w2.getLine()){
+                w1.updateDelAdd(w2);
+                w2.setShouldRemove(true);
+                return false;
+            }else if (w1.getWord().endsWith("-") || w2.getWord().startsWith("-")){
                 w1.updateDelAdd(w2);
                 w2.setShouldRemove(true);
                 return false;

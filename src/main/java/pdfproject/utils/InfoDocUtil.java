@@ -52,15 +52,27 @@ public class InfoDocUtil {
         // Create a map to store Info lists for each page number
         Map<Integer, List<Info>> pageToInfoListMap = new HashMap<>();
 
+        int min = Integer.MAX_VALUE;
+        int max = Integer.MIN_VALUE;
+
         // Iterate through WordInfo objects and populate the map
         for (WordInfo wordInfo : list) {
             int pageNumber = wordInfo.getFinalPageNumber();
+            min = Math.min(pageNumber,min);
+            max = Math.max(pageNumber,max);
             Info info = new Info(wordInfo.getWord(), wordInfo.getInfo(), wordInfo.getPDFont(), Base.getColorFromOperations(wordInfo.getTypeList()));
             info.setPositionY(wordInfo.getPosition());
             info.setLine(wordInfo.getLine());
             // If the page number is not already in the map, create a new list
             // Otherwise, add the info to the existing list for that page
             pageToInfoListMap.computeIfAbsent(pageNumber, k -> new ArrayList<>()).add(info);
+        }
+        //check if page is missing in middle
+
+        for (int i=min+1; i<max; i++){
+            if (!pageToInfoListMap.containsKey(i)){
+                pageToInfoListMap.put(i,new ArrayList<>());
+            }
         }
 
         // Combine adjacent Info objects with the same info and positionY
@@ -101,9 +113,13 @@ public class InfoDocUtil {
         int margin = 60;
 
         PDDocument document = new PDDocument();
-        for (List<Info> infos : masterList) {
+        for (List<Info> infos : masterList) {// change to for loop from start to last and fix
+
             int pageHeight = Math.max(margin * 2 + infos.size() * (2 * 20), 792);
             document.addPage(new PDPage());
+            if (infos.isEmpty()){
+                continue;
+            }
             PDPage page = document.getPage(document.getNumberOfPages() - 1);
             PDRectangle mediaBox = page.getMediaBox();
             mediaBox.setUpperRightY(pageHeight);
@@ -118,13 +134,12 @@ public class InfoDocUtil {
                     contentStream.beginText();
                     contentStream.setTextMatrix(Matrix.getTranslateInstance(20, yLimit));
                     contentStream.setNonStrokingColor(Color.BLACK);
-
                     try {
                         contentStream.setFont(PDType1Font.TIMES_ROMAN, 12);
                         contentStream.showText(in.getSentence());
-                    } catch (IOException e) {
-                        System.out.println("Error: \""+in.getSentence()+"\" can't be written!");
-                        contentStream.setNonStrokingColor(Color.DARK_GRAY);
+                    } catch (Exception e) {
+                        System.out.println("Error: \"" + in.getSentence() + "\" can't be written!");
+                        contentStream.setNonStrokingColor(Color.GRAY);
                         contentStream.showText("-->FONT UNAVAILABLE<--");
                         contentStream.setNonStrokingColor(Color.BLACK);
                     }

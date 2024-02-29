@@ -63,25 +63,23 @@ public class PDFProject {
         List<WordInfo> list1 = PDFUtil.WordList(pdf1, pagesPDF1);
         List<WordInfo> list2 = PDFUtil.WordList(pdf2, pagesPDF2);
 
-
         List<WordInfo> list = StringDiff.List(list1, list2);
-
         // Iterating through the differences and printing relevant information
-        Iterator<WordInfo> itr = list.iterator();
-        while (itr.hasNext()) {
-            WordInfo wordInfo = itr.next();
+        Iterator<WordInfo> itr2 = list.iterator();
+        while (itr2.hasNext()) {
+            WordInfo wordInfo = itr2.next();
             List<Constants.Operation> typeList = wordInfo.getTypeList();
             if (typeList.get(0) == Constants.Operation.EQUAL) {
-                itr.remove();
-                continue;
+                itr2.remove();
             }
-            //System.out.println(wordInfo.getWord() + ": " + wordInfo.getInfo());
         }
-        //System.out.println(list1.size() + " " + list2.size() + ": " + list.size());
+
 
         // Modifying the PDFs based on identified differences
         ModifyPDF modifyPDF = new ModifyPDF(pdf1, pdf2, list);
         modifyPDF.updatePDFs();
+
+
         masterList = modifyPDF.getMasterList();
 
         // Obtaining modified files and adding them to the temporary files list

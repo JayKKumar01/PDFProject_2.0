@@ -1,5 +1,6 @@
 package pdfproject.imageutils;
 
+import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import pdfproject.Config;
@@ -24,24 +25,28 @@ public class PDFToImageConverter {
      * @return List of BufferedImages for the specified pages.
      * @throws IOException If an error occurs during PDF processing.
      */
-    public static List<BufferedImage> createImagesFromPdf(File pdfFile, List<Integer> pages) throws IOException {
+    public static int getImagesSizeFromPdf(File pdfFile, List<Integer> pages) throws IOException {
+        int size;
+        if (!pages.isEmpty()){
+            return pages.size();
+        }
         try (PDDocument document = PDDocument.load(pdfFile)) {
-            PDFRenderer renderer = new PDFRenderer(document);
-            List<BufferedImage> pageImages = new ArrayList<>();
-
             // If no specific pages are provided, convert all pages
-            if (pages.isEmpty()) {
-                for (int i = 1; i <= document.getNumberOfPages(); i++) {
-                    pages.add(i);
-                }
-            }
+            size = document.getNumberOfPages();
+        }
+        return size;
+    }
 
-            for (int i : pages) {
-                BufferedImage image = renderer.renderImageWithDPI(i - 1, Config.IMAGE_QUALITY); // set the DPI to 300
-                pageImages.add(image);
+    public static BufferedImage createImageFromPdf(File pdfFile, List<Integer> pagesPDF, int index) throws IOException {
+        if (index < pagesPDF.size()){
+            index = pagesPDF.get(index)-1;
+        }
+        try (PDDocument document = PDDocument.load(pdfFile, MemoryUsageSetting.setupMainMemoryOnly())) {
+            PDFRenderer renderer = new PDFRenderer(document);
+            if (index + 1 > document.getNumberOfPages()){
+                return null;
             }
-
-            return pageImages;
+            return renderer.renderImageWithDPI(index, Config.IMAGE_QUALITY); // set the DPI to 300
         }
     }
 
@@ -58,30 +63,21 @@ public class PDFToImageConverter {
      */
     public static void createImage(File pdf1, File pdf2, File pdf3, String outputPath, List<Integer> pagesPDF1, List<Integer> pagesPDF2) throws IOException {
         // Load the images for each page from the three PDF files
-        List<BufferedImage> pdf1Images = createImagesFromPdf(pdf1, pagesPDF1);
-        List<BufferedImage> pdf2Images = createImagesFromPdf(pdf2, pagesPDF2);
-        List<BufferedImage> pdf3Images = createImagesFromPdf(pdf3, new ArrayList<>());
+        int len1 = getImagesSizeFromPdf(pdf1,pagesPDF1);
+        int len2 = getImagesSizeFromPdf(pdf2,pagesPDF2);
+        int len3 = getImagesSizeFromPdf(pdf3,new ArrayList<>());
 
         // Determine the number of pages in the combined PDF (the larger of the three)
-        int numPages = Math.max(pdf1Images.size(), pdf2Images.size());
-        numPages = Math.max(numPages, pdf3Images.size());
+        int numPages = Math.max(len1, len2);
+        numPages = Math.max(numPages, len3);
 
         // Combine the images of each page side by side and write to a new image file
         for (int i = 0; i < numPages; i++) {
-            BufferedImage pdf1Image = i < pdf1Images.size() ? pdf1Images.get(i) : null;
-            BufferedImage pdf2Image = i < pdf2Images.size() ? pdf2Images.get(i) : null;
-            BufferedImage pdf3Image = i < pdf3Images.size() ? pdf3Images.get(i) : null;
+            BufferedImage pdf1Image = createImageFromPdf(pdf1,pagesPDF1,i);
+            BufferedImage pdf2Image = createImageFromPdf(pdf2,pagesPDF2,i);
+            BufferedImage pdf3Image = createImageFromPdf(pdf3,new ArrayList<>(),i);
 
-            int width = (pdf1Image != null ? pdf1Image.getWidth() : 0) +
-                    (pdf2Image != null ? pdf2Image.getWidth() : 0) +
-                    (pdf3Image != null ? pdf3Image.getWidth() : 0);
-
-            int height = Math.max(pdf1Image != null ? pdf1Image.getHeight() : 0,
-                    pdf2Image != null ? pdf2Image.getHeight() : 0);
-
-            height = Math.max(height, pdf3Image != null ? pdf3Image.getHeight() : 0);
-
-            BufferedImage combinedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            BufferedImage combinedImage = getBufferedImage(pdf1Image, pdf2Image, pdf3Image);
 
             if (pdf1Image != null) {
                 combinedImage.createGraphics().drawImage(pdf1Image, 0, 0, null);
@@ -102,5 +98,19 @@ public class PDFToImageConverter {
         }
 
         System.out.println("Combined images created at: " + outputPath);
+    }
+
+    private static BufferedImage getBufferedImage(BufferedImage pdf1Image, BufferedImage pdf2Image, BufferedImage pdf3Image) {
+        int width =
+                (pdf1Image != null ? pdf1Image.getWidth() : 0) +
+                        (pdf2Image != null ? pdf2Image.getWidth() : 0) +
+                        (pdf3Image != null ? pdf3Image.getWidth() : 0);
+
+        int height = Math.max(pdf1Image != null ? pdf1Image.getHeight() : 0,
+                pdf2Image != null ? pdf2Image.getHeight() : 0);
+
+        height = Math.max(height, pdf3Image != null ? pdf3Image.getHeight() : 0);
+
+        return new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
     }
 }

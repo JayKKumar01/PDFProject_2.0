@@ -31,6 +31,7 @@ public class Base {
             prev = itr.next();
             if (prev.getPosition() > last.getPosition()){
                 footerY = prev.getPosition();
+                //System.out.println("Break: "+prev.getWord());
                 break;
             }
         }
@@ -41,18 +42,26 @@ public class Base {
         int line = last.getLine()+1;
         List<WordInfo> list = new ArrayList<>();
         prev.setLine(line);
+        prev.setFooter(true);
         list.add(prev);
         itr.remove();
+        new SortingUtil();
         while (itr.hasNext()){
             WordInfo current = itr.next();
 
             if (footerY > current.getPosition()){
+                // make sure footerY is the min position in footer
+//                footerY =
+//                if ()
+////                System.out.println("Position 1: "+prev.getPosition()+" -> Position 2: "+current.getPosition());
+//                System.out.println("2nd Break: "+prev.getWord()+" : "+current.getWord());
                 break;
             }
             if (prev.getPosition() < current.getPosition()){
                 line++;
             }
             current.setLine(line);
+            current.setFooter(true);
             list.add(current);
             itr.remove();
             prev = current;
@@ -127,6 +136,7 @@ public class Base {
         int size1 = wordInfo1.getFontSize();
         int size2 = wordInfo2.getFontSize();
         if (size1 != size2){
+//            System.out.println(wordInfo2.getWord()+": "+wordInfo2.getTypeList().size());
             wordInfo2.addType(Constants.Operation.SIZE);
             if (isComma){
                 builder.append(", ");
