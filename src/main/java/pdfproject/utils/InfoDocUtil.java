@@ -6,7 +6,6 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.pdfbox.pdmodel.graphics.color.PDColor;
 import org.apache.pdfbox.util.Matrix;
 import pdfproject.models.WordInfo;
 
@@ -21,12 +20,14 @@ import java.util.stream.Collectors;
  */
 public class InfoDocUtil {
 
+    private static final int MARGIN = 60;
+
     /**
      * Creates and saves a PDF document with extracted information.
      *
      * @param list List of WordInfo objects containing extracted information.
      * @param path Path to save the generated PDF document.
-     * @return
+     * @return List of lists containing Info objects, grouped by page number.
      */
     public static List<List<Info>> setDoc(List<WordInfo> list, String path) {
         try {
@@ -46,48 +47,36 @@ public class InfoDocUtil {
      * @return List of lists containing Info objects, grouped by page number.
      */
     private static List<List<Info>> toMasterList(List<WordInfo> list) {
-        // Sorting the WordInfo list based on custom criteria
         list.sort(new SortingUtil());
-
-        // Create a map to store Info lists for each page number
         Map<Integer, List<Info>> pageToInfoListMap = new HashMap<>();
 
         int min = Integer.MAX_VALUE;
         int max = Integer.MIN_VALUE;
 
-        // Iterate through WordInfo objects and populate the map
         for (WordInfo wordInfo : list) {
             int pageNumber = wordInfo.getFinalPageNumber();
-            min = Math.min(pageNumber,min);
-            max = Math.max(pageNumber,max);
+            min = Math.min(pageNumber, min);
+            max = Math.max(pageNumber, max);
             Info info = new Info(wordInfo.getWord(), wordInfo.getInfo(), wordInfo.getPDFont(), Base.getColorFromOperations(wordInfo.getTypeList()));
             info.setPositionY(wordInfo.getPosition());
             info.setLine(wordInfo.getLine());
-            // If the page number is not already in the map, create a new list
-            // Otherwise, add the info to the existing list for that page
             pageToInfoListMap.computeIfAbsent(pageNumber, k -> new ArrayList<>()).add(info);
         }
-        //check if page is missing in middle
 
-        for (int i=min+1; i<max; i++){
-            if (!pageToInfoListMap.containsKey(i)){
-                pageToInfoListMap.put(i,new ArrayList<>());
+        for (int i = min + 1; i < max; i++) {
+            if (!pageToInfoListMap.containsKey(i)) {
+                pageToInfoListMap.put(i, new ArrayList<>());
             }
         }
 
-        // Combine adjacent Info objects with the same info and positionY
         for (List<Info> li : pageToInfoListMap.values()) {
             Iterator<Info> iterator = li.iterator();
             Info a = iterator.hasNext() ? iterator.next() : null;
 
             while (iterator.hasNext()) {
                 Info b = iterator.next();
-                if (a != null
-                        && a.getInfo().equals(b.getInfo())
-                        && a.getLine() == b.getLine()
-                ) {
+                if (a != null && a.getInfo().equals(b.getInfo()) && a.getLine() == b.getLine()) {
                     a.setSentence(a.getSentence() + " " + b.getSentence());
-                    // Remove the second element (b) after setting the sentence
                     iterator.remove();
                 } else {
                     a = b;
@@ -95,7 +84,6 @@ public class InfoDocUtil {
             }
         }
 
-        // Convert the map entries to a list of lists, sorted by page number
         return pageToInfoListMap.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .map(Map.Entry::getValue)
@@ -110,14 +98,13 @@ public class InfoDocUtil {
      * @throws IOException If an I/O error occurs.
      */
     public static void addText(List<List<Info>> masterList, String path) throws IOException {
-        int margin = 60;
-
         PDDocument document = new PDDocument();
-        for (List<Info> infos : masterList) {// change to for loop from start to last and fix
 
-            int pageHeight = Math.max(margin * 2 + infos.size() * (2 * 20), 792);
+        for (List<Info> infos : masterList) {
+            int pageHeight = Math.max(MARGIN * 2 + infos.size() * (2 * 20), 792);
+
             document.addPage(new PDPage());
-            if (infos.isEmpty()){
+            if (infos.isEmpty()) {
                 continue;
             }
             PDPage page = document.getPage(document.getNumberOfPages() - 1);
@@ -126,31 +113,11 @@ public class InfoDocUtil {
             page.setMediaBox(mediaBox);
 
             float wordHeight = 0f;
+
             for (Info in : infos) {
-                float yLimit = page.getMediaBox().getHeight() - wordHeight - margin;
-
+                float yLimit = page.getMediaBox().getHeight() - wordHeight - MARGIN;
                 try (PDPageContentStream contentStream = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.APPEND, true, true)) {
-
-                    contentStream.beginText();
-                    contentStream.setTextMatrix(Matrix.getTranslateInstance(20, yLimit));
-                    contentStream.setNonStrokingColor(Color.BLACK);
-                    try {
-                        contentStream.setFont(PDType1Font.TIMES_ROMAN, 12);
-                        contentStream.showText(in.getSentence());
-                    } catch (Exception e) {
-                        System.out.println("Error: \"" + in.getSentence() + "\" can't be written!");
-                        contentStream.setNonStrokingColor(Color.GRAY);
-                        contentStream.showText("-->FONT UNAVAILABLE<--");
-                        contentStream.setNonStrokingColor(Color.BLACK);
-                    }
-
-
-                    contentStream.setNonStrokingColor(in.getColor());
-                    contentStream.setFont(PDType1Font.TIMES_ROMAN, 10);
-
-                    contentStream.setTextMatrix(Matrix.getTranslateInstance(20, yLimit - 20));
-                    contentStream.showText(in.getInfo());
-                    contentStream.endText();
+                    addTextToContentStream(contentStream, in, yLimit);
                     wordHeight += 2 * 20;
                 }
             }
@@ -158,6 +125,33 @@ public class InfoDocUtil {
 
         document.save(path);
         document.close();
+    }
+
+    private static void addTextToContentStream(PDPageContentStream contentStream, Info info, float yLimit) throws IOException {
+        contentStream.beginText();
+        contentStream.setTextMatrix(Matrix.getTranslateInstance(20, yLimit));
+        contentStream.setNonStrokingColor(Color.BLACK);
+
+        try {
+            contentStream.setFont(PDType1Font.TIMES_ROMAN, 12);
+            contentStream.showText(info.getSentence());
+        } catch (Exception e) {
+            handleFontUnavailableError(contentStream);
+        }
+
+        contentStream.setNonStrokingColor(info.getColor());
+        contentStream.setFont(PDType1Font.TIMES_ROMAN, 10);
+
+        contentStream.setTextMatrix(Matrix.getTranslateInstance(20, yLimit - 20));
+        contentStream.showText(info.getInfo());
+        contentStream.endText();
+    }
+
+    private static void handleFontUnavailableError(PDPageContentStream contentStream) throws IOException {
+        System.out.println("Error: Font unavailable!");
+        contentStream.setNonStrokingColor(Color.GRAY);
+        contentStream.showText("-->FONT UNAVAILABLE<--");
+        contentStream.setNonStrokingColor(Color.BLACK);
     }
 
     /**

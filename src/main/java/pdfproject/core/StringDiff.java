@@ -115,6 +115,7 @@ public class StringDiff {
             String w1 = wordInfo1.getWord();
             String w2 = wordInfo2.getWord();
             if (w1.equals(w2)) {
+
                 if (!gotEqual) {
                     gotEqual = true;
                     updateDelAddList(resultDel);

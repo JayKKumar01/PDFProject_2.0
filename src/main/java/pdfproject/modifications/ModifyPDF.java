@@ -5,8 +5,10 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.text.TextPosition;
+import pdfproject.Config.Colors;
 import pdfproject.enums.Constants.Operation;
 import pdfproject.models.WordInfo;
+import pdfproject.utils.InfoDocUtil;
 
 import java.awt.*;
 import java.io.File;
@@ -14,8 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import pdfproject.Config.Colors;
-import pdfproject.utils.InfoDocUtil;
+import java.util.Map;
 
 import static pdfproject.enums.Constants.FileFormat.TEMP_DIR;
 
@@ -30,10 +31,10 @@ public class ModifyPDF {
     private final List<File> files = new ArrayList<>();
     private List<List<InfoDocUtil.Info>> masterList;
 
-    private static final String path1 = TEMP_DIR + "old.pdf";
-    private static final String path2 = TEMP_DIR + "new.pdf";
-    private static final String path3 = TEMP_DIR + "edited.pdf";
-
+    private static final String TEMP_PATH = TEMP_DIR + "%s.pdf";
+    private static final String path1 = String.format(TEMP_PATH, "old");
+    private static final String path2 = String.format(TEMP_PATH, "new");
+    private static final String path3 = String.format(TEMP_PATH, "edited");
 
     /**
      * Constructor to initialize the ModifyPDF object with two PDF documents and a list of WordInfo differences.
@@ -48,127 +49,6 @@ public class ModifyPDF {
         this.list = list;
     }
 
-    /**
-     * Updates PDF documents based on identified differences and creates output files.
-     */
-    public void updatePDFs() {
-        List<WordInfo> listForDoc1 = new ArrayList<>();
-        List<WordInfo> listForDoc2 = new ArrayList<>();
-        for(WordInfo wordInfo: list){
-            List<Operation> typeList = wordInfo.getTypeList();
-            if (typeList.size()  == 1 && typeList.get(0) == Operation.DELETED){
-                listForDoc1.add(wordInfo);
-            }else {
-                listForDoc2.add(wordInfo);
-            }
-        }
-
-        updatePDF(pdf1, listForDoc1,path1);
-        updatePDF(pdf2, listForDoc2,path2);
-
-        masterList = InfoDocUtil.setDoc(list, path3);
-
-
-        files.add(new File(path1));
-        files.add(new File(path2));
-        files.add(new File(path3));
-    }
-
-    private void updatePDF(File pdf, List<WordInfo> list, String path) {
-        HashMap<Integer,List<WordInfo>> map = new HashMap<>();
-        for (WordInfo wordInfo: list){
-            int pageIndex = wordInfo.getPageNumber() - 1;
-            if (map.containsKey(pageIndex)){
-                map.get(pageIndex).add(wordInfo);
-            }else {
-                List<WordInfo> l = new ArrayList<>();
-                l.add(wordInfo);
-                map.put(pageIndex,l);
-            }
-        }
-
-        PDDocument doc = getDoc(pdf);
-
-        for (int pageIndex: map.keySet()){
-            addRect(pageIndex,doc,map.get(pageIndex));
-        }
-
-        decrypt(doc);
-
-        try {
-            doc.save(path);
-            doc.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void addRect(int pageIndex,PDDocument doc, List<WordInfo> list) {
-        PDPage page = doc.getPage(pageIndex);
-        try (PDPageContentStream contentStream = new PDPageContentStream(doc, page, PDPageContentStream.AppendMode.APPEND, true, true)) {
-
-            contentStream.setLineWidth(2);
-            for (WordInfo wordInfo: list){
-                List<TextPosition> textPositions = wordInfo.getPositions();
-                TextPosition firstTextPosition = textPositions.get(0);
-                TextPosition lastTextPosition = textPositions.get(textPositions.size() - 1);
-
-                Color color = getColor(wordInfo);
-                contentStream.setStrokingColor(color);
-                float padding = 2f;
-                float x = firstTextPosition.getX() - padding;
-                float y = page.getMediaBox().getHeight() - lastTextPosition.getY() - padding;
-                float width = lastTextPosition.getX() + lastTextPosition.getWidth() - firstTextPosition.getX() + padding * 2;
-                float height = lastTextPosition.getHeight() + padding * 2;
-
-                contentStream.addRect(x, y, width, height);
-                contentStream.stroke();
-            }
-
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private Color getColor(WordInfo wordInfo) {
-        Color color = null;
-        List<Operation> typeList = wordInfo.getTypeList();
-
-        if (typeList.size() == 1) {
-            Operation operation = typeList.get(0);
-
-            switch (operation) {
-                case ADDED:
-                    color = Colors.ADDED_OPERATION_COLOR;
-                    break;
-                case FONT:
-                    color = Colors.FONT_NAME_OPERATION_COLOR;
-                    break;
-                case SIZE:
-                    color = Colors.FONT_SIZE_OPERATION_COLOR;
-                    break;
-                case STYLE:
-                    color = Colors.FONT_STYLE_OPERATION_COLOR;
-                    break;
-                case DELETED:
-                    color = Colors.DELETED_OPERATION_COLOR;
-                    break;
-                default:
-                    color = color;
-                    break;
-            }
-        } else if (typeList.size() > 1) {
-            color = Colors.MULTIPLE_OPERATION_COLOR;
-        }
-        return color;
-    }
-
-    /**
-     * Gets the list of output files generated during PDF modification.
-     *
-     * @return List of output files.
-     */
     public List<File> getFiles() {
         return files;
     }
@@ -178,12 +58,113 @@ public class ModifyPDF {
     }
 
     /**
-     * Adds a rectangle highlighting a WordInfo object on a PDF page.
-     *
-     * @param wordInfo  WordInfo object representing the text to be highlighted.
-     * @param document  PDDocument representing the PDF document.
-     * @param color     Color of the rectangle.
+     * Updates PDF documents based on identified differences and creates output files.
      */
+    public void updatePDFs() {
+        List<WordInfo> listForDoc1 = new ArrayList<>();
+        List<WordInfo> listForDoc2 = new ArrayList<>();
+        separateWordInfoLists(listForDoc1, listForDoc2);
+
+        updatePDF(pdf1, listForDoc1, path1);
+        updatePDF(pdf2, listForDoc2, path2);
+
+        masterList = InfoDocUtil.setDoc(list, path3);
+
+        files.add(new File(path1));
+        files.add(new File(path2));
+        files.add(new File(path3));
+    }
+
+    private void separateWordInfoLists(List<WordInfo> listForDoc1, List<WordInfo> listForDoc2) {
+        for (WordInfo wordInfo : list) {
+            List<Operation> typeList = wordInfo.getTypeList();
+            if (typeList.size() == 1 && typeList.get(0) == Operation.DELETED) {
+                listForDoc1.add(wordInfo);
+            } else {
+                listForDoc2.add(wordInfo);
+            }
+        }
+    }
+
+    private void updatePDF(File pdf, List<WordInfo> list, String path) {
+        Map<Integer, List<WordInfo>> map = new HashMap<>();
+        list.forEach(wordInfo -> map.computeIfAbsent(wordInfo.getPageNumber() - 1, k -> new ArrayList<>()).add(wordInfo));
+
+        PDDocument doc = getDoc(pdf);
+
+        map.forEach((pageIndex, wordInfoList) -> addRect(pageIndex, doc, wordInfoList));
+
+        decrypt(doc);
+
+        saveAndCloseDocument(doc, path);
+    }
+
+    private void addRect(int pageIndex, PDDocument doc, List<WordInfo> list) {
+        PDPage page = doc.getPage(pageIndex);
+        try (PDPageContentStream contentStream = new PDPageContentStream(doc, page, PDPageContentStream.AppendMode.APPEND, true, true)) {
+
+            contentStream.setLineWidth(2);
+            list.forEach(wordInfo -> {
+                try {
+                    drawRectangle(contentStream, page, wordInfo);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+        } catch (IOException e) {
+            throw new RuntimeException("Error creating PDPageContentStream: " + e.getMessage(), e);
+        }
+    }
+
+    private void drawRectangle(PDPageContentStream contentStream, PDPage page, WordInfo wordInfo) throws IOException {
+        List<TextPosition> textPositions = wordInfo.getPositions();
+        TextPosition firstTextPosition = textPositions.get(0);
+        TextPosition lastTextPosition = textPositions.get(textPositions.size() - 1);
+
+        contentStream.setStrokingColor(getColor(wordInfo));
+        float padding = 2f;
+        float x = firstTextPosition.getX() - padding;
+        float y = page.getMediaBox().getHeight() - lastTextPosition.getY() - padding;
+        float width = lastTextPosition.getX() + lastTextPosition.getWidth() - firstTextPosition.getX() + padding * 2;
+        float height = lastTextPosition.getHeight() + padding * 2;
+
+        contentStream.addRect(x, y, width, height);
+        contentStream.stroke();
+    }
+
+    private Color getColor(WordInfo wordInfo) {
+        List<Operation> typeList = wordInfo.getTypeList();
+
+        if (typeList.size() == 1) {
+            Operation operation = typeList.get(0);
+
+            switch (operation) {
+                case ADDED:
+                    return Colors.ADDED_OPERATION_COLOR;
+                case FONT:
+                    return Colors.FONT_NAME_OPERATION_COLOR;
+                case SIZE:
+                    return Colors.FONT_SIZE_OPERATION_COLOR;
+                case STYLE:
+                    return Colors.FONT_STYLE_OPERATION_COLOR;
+                case DELETED:
+                    return Colors.DELETED_OPERATION_COLOR;
+                default:
+                    return Colors.MULTIPLE_OPERATION_COLOR;
+            }
+        }
+        return Colors.MULTIPLE_OPERATION_COLOR;
+    }
+
+    private void saveAndCloseDocument(PDDocument doc, String path) {
+        try {
+            doc.save(path);
+            doc.close();
+        } catch (IOException e) {
+            throw new RuntimeException("Error saving or closing document: " + e.getMessage(), e);
+        }
+    }
 
     /**
      * Decrypts a PDF document if it is encrypted.
@@ -209,6 +190,4 @@ public class ModifyPDF {
             throw new RuntimeException(e);
         }
     }
-
-
 }

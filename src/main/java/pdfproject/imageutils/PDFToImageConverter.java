@@ -17,6 +17,9 @@ import java.util.List;
  */
 public class PDFToImageConverter {
 
+    private static final String IMAGE_FORMAT = "png";
+    private static final String IMAGE_NAME_PREFIX = "combined_page_";
+
     /**
      * Creates a list of BufferedImages from a PDF file for specified pages.
      *
@@ -26,24 +29,22 @@ public class PDFToImageConverter {
      * @throws IOException If an error occurs during PDF processing.
      */
     public static int getImagesSizeFromPdf(File pdfFile, List<Integer> pages) throws IOException {
-        int size;
-        if (!pages.isEmpty()){
+        if (!pages.isEmpty()) {
             return pages.size();
         }
         try (PDDocument document = PDDocument.load(pdfFile)) {
             // If no specific pages are provided, convert all pages
-            size = document.getNumberOfPages();
+            return document.getNumberOfPages();
         }
-        return size;
     }
 
     public static BufferedImage createImageFromPdf(File pdfFile, List<Integer> pagesPDF, int index) throws IOException {
-        if (index < pagesPDF.size()){
-            index = pagesPDF.get(index)-1;
+        if (index < pagesPDF.size()) {
+            index = pagesPDF.get(index) - 1;
         }
         try (PDDocument document = PDDocument.load(pdfFile, MemoryUsageSetting.setupMainMemoryOnly())) {
             PDFRenderer renderer = new PDFRenderer(document);
-            if (index + 1 > document.getNumberOfPages()){
+            if (index + 1 > document.getNumberOfPages()) {
                 return null;
             }
             return renderer.renderImageWithDPI(index, Config.IMAGE_QUALITY); // set the DPI to 300
@@ -61,11 +62,11 @@ public class PDFToImageConverter {
      * @param pagesPDF2  List of page numbers to extract from the second PDF.
      * @throws IOException If an error occurs during PDF processing or image creation.
      */
-    public static void createImage(File pdf1, File pdf2, File pdf3, String outputPath, List<Integer> pagesPDF1, List<Integer> pagesPDF2) throws IOException {
+    public static void combineImagesFromPDFsAndSave(File pdf1, File pdf2, File pdf3, String outputPath, List<Integer> pagesPDF1, List<Integer> pagesPDF2) throws IOException {
         // Load the images for each page from the three PDF files
-        int len1 = getImagesSizeFromPdf(pdf1,pagesPDF1);
-        int len2 = getImagesSizeFromPdf(pdf2,pagesPDF2);
-        int len3 = getImagesSizeFromPdf(pdf3,new ArrayList<>());
+        int len1 = getImagesSizeFromPdf(pdf1, pagesPDF1);
+        int len2 = getImagesSizeFromPdf(pdf2, pagesPDF2);
+        int len3 = getImagesSizeFromPdf(pdf3, new ArrayList<>());
 
         // Determine the number of pages in the combined PDF (the larger of the three)
         int numPages = Math.max(len1, len2);
@@ -73,31 +74,34 @@ public class PDFToImageConverter {
 
         // Combine the images of each page side by side and write to a new image file
         for (int i = 0; i < numPages; i++) {
-            BufferedImage pdf1Image = createImageFromPdf(pdf1,pagesPDF1,i);
-            BufferedImage pdf2Image = createImageFromPdf(pdf2,pagesPDF2,i);
-            BufferedImage pdf3Image = createImageFromPdf(pdf3,new ArrayList<>(),i);
+            BufferedImage pdf1Image = createImageFromPdf(pdf1, pagesPDF1, i);
+            BufferedImage pdf2Image = createImageFromPdf(pdf2, pagesPDF2, i);
+            BufferedImage pdf3Image = createImageFromPdf(pdf3, new ArrayList<>(), i);
 
-            BufferedImage combinedImage = getBufferedImage(pdf1Image, pdf2Image, pdf3Image);
-
-            if (pdf1Image != null) {
-                combinedImage.createGraphics().drawImage(pdf1Image, 0, 0, null);
-            }
-            if (pdf2Image != null) {
-                combinedImage.createGraphics().drawImage(pdf2Image,
-                        pdf1Image != null ? pdf1Image.getWidth() : 0, 0, null);
-            }
-            if (pdf3Image != null) {
-                combinedImage.createGraphics().drawImage(pdf3Image,
-                        (pdf1Image != null ? pdf1Image.getWidth() : 0) +
-                                (pdf2Image != null ? pdf2Image.getWidth() : 0), 0, null);
-            }
-
-            File combinedImageFile = new File(outputPath, "combined_page_" + (i + 1) + ".png");
-            ImageIO.write(combinedImage, "png", combinedImageFile);
-            System.out.println("Created at: " + combinedImageFile.getAbsolutePath());
+            combineAndSaveImages(i, pdf1Image, pdf2Image, pdf3Image, outputPath);
         }
 
         System.out.println("Combined images created at: " + outputPath);
+    }
+
+    private static void combineAndSaveImages(int i, BufferedImage pdf1Image, BufferedImage pdf2Image, BufferedImage pdf3Image, String outputPath) throws IOException {
+        BufferedImage combinedImage = getBufferedImage(pdf1Image, pdf2Image, pdf3Image);
+
+        if (pdf1Image != null) {
+            combinedImage.createGraphics().drawImage(pdf1Image, 0, 0, null);
+        }
+        if (pdf2Image != null) {
+            combinedImage.createGraphics().drawImage(pdf2Image, pdf1Image != null ? pdf1Image.getWidth() : 0, 0, null);
+        }
+        if (pdf3Image != null) {
+            combinedImage.createGraphics().drawImage(pdf3Image,
+                    (pdf1Image != null ? pdf1Image.getWidth() : 0) +
+                            (pdf2Image != null ? pdf2Image.getWidth() : 0), 0, null);
+        }
+
+        File combinedImageFile = new File(outputPath, IMAGE_NAME_PREFIX + (i + 1) + "." + IMAGE_FORMAT);
+        ImageIO.write(combinedImage, IMAGE_FORMAT, combinedImageFile);
+        System.out.println("Created at: " + combinedImageFile.getAbsolutePath());
     }
 
     private static BufferedImage getBufferedImage(BufferedImage pdf1Image, BufferedImage pdf2Image, BufferedImage pdf3Image) {

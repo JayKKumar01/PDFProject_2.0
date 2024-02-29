@@ -93,7 +93,7 @@ public class PDFProject {
 
         try {
             // Converting modified PDFs to images for visual comparison
-            PDFToImageConverter.createImage(file1, file2, file3, outputPath, pagesPDF1, pagesPDF2);
+            PDFToImageConverter.combineImagesFromPDFsAndSave(file1, file2, file3, outputPath, pagesPDF1, pagesPDF2);
         } catch (IOException e) {
             e.printStackTrace();
             return false;
