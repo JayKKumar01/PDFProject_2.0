@@ -19,7 +19,7 @@ public class DataModel {
         if (range1 != null){
             isRange1 = true;
             this.startPage1 = getFirst(range1);
-            this.endPage1 = getFirst(range1);
+            this.endPage1 = getLast(range1);
         }
         if (range2 != null){
             isRange2 = true;
