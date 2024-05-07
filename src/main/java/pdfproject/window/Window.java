@@ -3,12 +3,13 @@ package pdfproject.window;
 import pdfproject.window.utils.CustomOutputStream;
 
 import javax.swing.*;
+import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.text.DefaultCaret;
 import java.awt.*;
 import java.io.PrintStream;
 
 public class Window {
-    public Window(int w, int h) {
+    public Window(int h) {
         JFrame jFrame = new JFrame();
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jFrame.getContentPane().setLayout(new BorderLayout());
@@ -20,6 +21,7 @@ public class Window {
 
         JPanel mainContent = new JPanel();
         mainContent.setBackground(lightGray);
+        int w = h * 16 / 9;
         int mainContentHeight = h * 3 / 5;
         mainContent.setPreferredSize(new Dimension(w, mainContentHeight));
 
