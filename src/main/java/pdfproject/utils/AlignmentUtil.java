@@ -8,11 +8,14 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class AlignmentUtil {
 
-    public static void saveAlignmentImages(File pdf1, File pdf2, List<Integer> pagesPDF1, List<Integer> pagesPDF2, String outputPath) {
+    public static List<List<String>> saveAlignmentImages(File pdf1, File pdf2, List<Integer> pagesPDF1, List<Integer> pagesPDF2, String outputPath) {
+        List<List<String>> alignmentFileNames = new ArrayList<>();
+
         try (PDDocument doc1 = PDDocument.load(pdf1); PDDocument doc2 = PDDocument.load(pdf2)) {
             PDFRenderer renderer1 = new PDFRenderer(doc1);
             PDFRenderer renderer2 = new PDFRenderer(doc2);
@@ -31,16 +34,30 @@ public class AlignmentUtil {
                 BufferedImage diffImage = createDifferenceImage(image1, image2);
 
                 // Save images to output directory
-                saveImage(image1, outputPath, "Alignment_Page_" + pagesPDF1.get(i) + "_A.png");
-                saveImage(image2, outputPath, "Alignment_Page_" + pagesPDF2.get(i) + "_B.png");
-                saveImage(diffImage, outputPath, "Alignment_Page_" + pagesPDF1.get(i) + "_C.png");
+                String file1 = "Alignment_Page_" + pagesPDF1.get(i) + "_A.png";
+                String file2 = "Alignment_Page_" + pagesPDF2.get(i) + "_B.png";
+                String file3 = "Alignment_Page_" + pagesPDF1.get(i) + "_C.png";
+
+                saveImage(image1, outputPath, file1);
+                saveImage(image2, outputPath, file2);
+                saveImage(diffImage, outputPath, file3);
+
+                // Add file names to result list
+                List<String> fileNames = new ArrayList<>();
+                fileNames.add(file1);
+                fileNames.add(file2);
+                fileNames.add(file3);
+                alignmentFileNames.add(fileNames);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return alignmentFileNames;
     }
 
-    public static void saveValidationImageSet(int i, BufferedImage pdf1Image, BufferedImage pdf2Image, BufferedImage pdf3Image, String outputPath) {
+    public static List<String> saveValidationImageSet(int i, BufferedImage pdf1Image, BufferedImage pdf2Image, BufferedImage pdf3Image, String outputPath) {
+        List<String> validationFileNames = new ArrayList<>();
         try {
             // Combine pdf1Image and pdf2Image side by side
             int combinedWidth = pdf1Image.getWidth() + pdf2Image.getWidth();
@@ -52,13 +69,23 @@ public class AlignmentUtil {
             combinedImage.getGraphics().drawImage(pdf2Image, pdf1Image.getWidth(), 0, null);
 
             // Save combined image
-            saveImage(combinedImage, outputPath, "Validation_Page_" + i + "_Combined.png");
+            String combinedFile = "Validation_Page_" + i + "_Combined.png";
+            saveImage(combinedImage, outputPath, combinedFile);
+            validationFileNames.add(combinedFile);
 
-            // Save pdf3Image alone
-            saveImage(pdf3Image, outputPath, "Validation_Page_" + i + "_Single.png");
+            if (pdf3Image != null) {
+                // Save pdf3Image alone
+                String singleFile = "Validation_Page_" + i + "_Single.png";
+                saveImage(pdf3Image, outputPath, singleFile);
+                validationFileNames.add(singleFile);
+            } else {
+                validationFileNames.add(null); // Indicate missing pdf3Image
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        return validationFileNames;
     }
 
     private static BufferedImage createDifferenceImage(BufferedImage img1, BufferedImage img2) {

@@ -63,7 +63,8 @@ public class PDFToImageConverter {
      * @param pagesPDF2  List of page numbers to extract from the second PDF.
      * @throws IOException If an error occurs during PDF processing or image creation.
      */
-    public static void combineImagesFromPDFsAndSave(File pdf1, File pdf2, File pdf3, String outputPath, List<Integer> pagesPDF1, List<Integer> pagesPDF2) throws IOException {
+    public static List<List<String>> combineImagesFromPDFsAndSave(File pdf1, File pdf2, File pdf3, String outputPath, List<Integer> pagesPDF1, List<Integer> pagesPDF2) throws IOException {
+        List<List<String>> list = new ArrayList<>();
         // Load the images for each page from the three PDF files
         int len1 = getImagesSizeFromPdf(pdf1, pagesPDF1);
         int len2 = getImagesSizeFromPdf(pdf2, pagesPDF2);
@@ -78,17 +79,18 @@ public class PDFToImageConverter {
             BufferedImage pdf2Image = createImageFromPdf(pdf2, pagesPDF2, i);
             BufferedImage pdf3Image = createImageFromPdf(pdf3, new ArrayList<>(), i);
 
-            combineAndSaveImages(i, pdf1Image, pdf2Image, pdf3Image, outputPath);
+            list.add(combineAndSaveImages(i, pdf1Image, pdf2Image, pdf3Image, outputPath));
         }
 
         System.out.println("Combined images created at: " + outputPath);
+        return list;
     }
 
 
 
-    private static void combineAndSaveImages(int i, BufferedImage pdf1Image, BufferedImage pdf2Image, BufferedImage pdf3Image, String outputPath) throws IOException {
+    private static List<String> combineAndSaveImages(int i, BufferedImage pdf1Image, BufferedImage pdf2Image, BufferedImage pdf3Image, String outputPath) throws IOException {
 
-        AlignmentUtil.saveValidationImageSet(i,pdf1Image,pdf2Image,pdf3Image,outputPath);
+        List<String> list = AlignmentUtil.saveValidationImageSet(i, pdf1Image, pdf2Image, pdf3Image, outputPath);
 
         BufferedImage combinedImage = getBufferedImage(pdf1Image, pdf2Image, pdf3Image);
 
@@ -107,6 +109,7 @@ public class PDFToImageConverter {
         File combinedImageFile = new File(outputPath, IMAGE_NAME_PREFIX + (i + 1) + "." + IMAGE_FORMAT);
         ImageIO.write(combinedImage, IMAGE_FORMAT, combinedImageFile);
         System.out.println("Created at: " + combinedImageFile.getAbsolutePath());
+        return list;
     }
 
     private static BufferedImage getBufferedImage(BufferedImage pdf1Image, BufferedImage pdf2Image, BufferedImage pdf3Image) {
