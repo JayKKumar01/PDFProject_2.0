@@ -9,6 +9,7 @@ import pdfproject.enums.Constants.FileFormat;
 import pdfproject.imageutils.PDFToImageConverter;
 import pdfproject.models.WordInfo;
 import pdfproject.modifications.ModifyPDF;
+import pdfproject.utils.AlignmentUtil;
 import pdfproject.utils.InfoDocUtil;
 import pdfproject.utils.PDFUtil;
 import pdfproject.utils.WordToPdfConverter;
@@ -74,6 +75,7 @@ public class PDFProject {
             }
         }
 
+        AlignmentUtil.saveAlignmentImages(pdf1,pdf2,pagesPDF1,pagesPDF2,outputPath);
 
         // Modifying the PDFs based on identified differences
         ModifyPDF modifyPDF = new ModifyPDF(pdf1, pdf2, list);

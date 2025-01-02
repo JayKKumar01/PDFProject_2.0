@@ -4,6 +4,7 @@ import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import pdfproject.Config;
+import pdfproject.utils.AlignmentUtil;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -69,8 +70,7 @@ public class PDFToImageConverter {
         int len3 = getImagesSizeFromPdf(pdf3, new ArrayList<>());
 
         // Determine the number of pages in the combined PDF (the larger of the three)
-        int numPages = Math.max(len1, len2);
-        numPages = Math.max(numPages, len3);
+        int numPages = Math.max(Math.max(len1, len2), len3);
 
         // Combine the images of each page side by side and write to a new image file
         for (int i = 0; i < numPages; i++) {
@@ -84,7 +84,12 @@ public class PDFToImageConverter {
         System.out.println("Combined images created at: " + outputPath);
     }
 
+
+
     private static void combineAndSaveImages(int i, BufferedImage pdf1Image, BufferedImage pdf2Image, BufferedImage pdf3Image, String outputPath) throws IOException {
+
+        AlignmentUtil.saveValidationImageSet(i,pdf1Image,pdf2Image,pdf3Image,outputPath);
+
         BufferedImage combinedImage = getBufferedImage(pdf1Image, pdf2Image, pdf3Image);
 
         if (pdf1Image != null) {
