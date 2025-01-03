@@ -96,15 +96,14 @@ public class AlignmentUtil {
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                Color color1 = new Color(img1.getRGB(x, y));
-                Color color2 = new Color(img2.getRGB(x, y));
+                int rgb1 = img1.getRGB(x, y);
+                int rgb2 = img2.getRGB(x, y);
 
-                int diffRed = Math.abs(color1.getRed() - color2.getRed());
-                int diffGreen = Math.abs(color1.getGreen() - color2.getGreen());
-                int diffBlue = Math.abs(color1.getBlue() - color2.getBlue());
-
-                Color diffColor = new Color(diffRed, diffGreen, diffBlue);
-                diffImage.setRGB(x, y, diffColor.getRGB());
+                if (rgb1 != rgb2) {
+                    diffImage.setRGB(x, y, Color.RED.getRGB());
+                } else {
+                    diffImage.setRGB(x, y, rgb1);
+                }
             }
         }
 
