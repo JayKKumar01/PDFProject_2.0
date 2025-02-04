@@ -85,7 +85,7 @@ public class Launcher {
                 // Perform the PDF comparison
                 if (pdfProject.compare()) {
                     System.out.println(data.getOutputFolder() + ": Comparison Done!");
-                    updateOutputData(pdfProject.getMasterList(),i+2);
+//                    updateOutputData(pdfProject.getMasterList(),i+2);
                 } else {
                     System.out.println(data.getOutputFolder() + ": Something went wrong!");
                 }

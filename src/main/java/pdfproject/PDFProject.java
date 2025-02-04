@@ -61,6 +61,8 @@ public class PDFProject {
 
         // Extracting WordInfo lists for each PDF and finding differences
 
+
+
         List<WordInfo> list1 = PDFUtil.WordList(pdf1, pagesPDF1);
         List<WordInfo> list2 = PDFUtil.WordList(pdf2, pagesPDF2);
 
@@ -75,7 +77,7 @@ public class PDFProject {
             }
         }
 
-        List<List<String>> saveListSomewhere = AlignmentUtil.saveAlignmentImages(pdf1, pdf2, pagesPDF1, pagesPDF2, outputPath);
+//        List<List<String>> saveListSomewhere = AlignmentUtil.saveAlignmentImages(pdf1, pdf2, pagesPDF1, pagesPDF2, outputPath);
 
         // Modifying the PDFs based on identified differences
         ModifyPDF modifyPDF = new ModifyPDF(pdf1, pdf2, list);
@@ -95,7 +97,7 @@ public class PDFProject {
 
         try {
             // Converting modified PDFs to images for visual comparison
-            List<List<String>> saveListSomewhere2 = PDFToImageConverter.combineImagesFromPDFsAndSave(file1, file2, file3, outputPath, pagesPDF1, pagesPDF2);
+            PDFToImageConverter.combineImagesFromPDFsAndSave(file1, file2, file3, outputPath, pagesPDF1, pagesPDF2);
         } catch (IOException e) {
             e.printStackTrace();
             return false;
